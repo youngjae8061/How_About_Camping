@@ -9,13 +9,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <!-- <activity> ~ </activity> 사이에 <intent-filter>가 있는 activity가 실행시 가장 먼저 화면이 뜸 -->
+        <!-- 방금전 styles.xml에서 설정한 SplashTheme적용 -->
+        <!-- Splash는 세로화면만 지원 가능하므로 screenOrientation을 portrait으로 -->
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".LoginActivity"></activity>
     </application>
 
 </manifest>

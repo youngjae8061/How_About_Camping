@@ -5,6 +5,15 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- 타이틀바 없애기 -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
+    <!-- 여기에 splash.png 파일을 맵핑 -->
+    <!-- 이제 액티비티 등록하러 manifest - AndroidManifest.xml로 가서 작성 -->
+    <style name="SplashTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground"> @drawable/splash </item>
+    </style>
 </resources>
