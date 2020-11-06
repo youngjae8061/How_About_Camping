@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1082926929712",
+    "firebase_url": "https://mobilesw-a40fa.firebaseio.com",
+    "project_id": "mobilesw-a40fa",
+    "storage_bucket": "mobilesw-a40fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082926929712:android:897e31cd650bbd54569af5",
+        "android_client_info": {
+          "package_name": "com.example.how_about_camping"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1082926929712-sb8t5uqnvfet06p5tlv1208tvc162cl0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD61k7N64OZKFGDpRfH_tSDWNcxVcs6j0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082926929712-sb8t5uqnvfet06p5tlv1208tvc162cl0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

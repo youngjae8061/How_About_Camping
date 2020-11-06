@@ -1,18 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".LoginActivity">
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="150dp"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/page_login"/>
+
+
+    <EditText
+        android:id="@+id/edt_id"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:drawableStart="@drawable/ic_baseline_account_circle_24"
+        android:drawableLeft="@drawable/ic_baseline_account_circle_24"
+        android:padding="10dp"
+        android:ems="10"
+        android:textStyle="bold"
+        android:hint="   아 이 디"
+        android:background="@drawable/style_login_id"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/edt_pw"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawableStart="@drawable/ic_baseline_lock_24"
+        android:drawableLeft="@drawable/ic_baseline_lock_24"
+        android:padding="10dp"
+        android:ems="10"
+        android:hint="   비 밀 번 호  "
+        android:textStyle="bold"
+        android:background="@drawable/style_login_pw"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="280dp"
+        android:layout_height="40dp"
+        android:layout_margin="15dp"
+        android:layout_gravity="center"
+        android:background="@drawable/style_button"
+        android:text="로 그 인"/>
+
+
     <TextView
+        android:id="@+id/txt_sign_up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center"
+        android:text="회원가입"
+        android:textSize="15dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/login_google"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"/>
+    
+</LinearLayout>
