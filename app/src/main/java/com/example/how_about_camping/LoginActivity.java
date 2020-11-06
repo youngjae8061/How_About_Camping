@@ -3,6 +3,7 @@ package com.example.how_about_camping;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -32,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     EditText edt_id, edt_pw;
+    TextView txt_join;
     Button btn_login;
     // 마지막으로 뒤로가기 버튼을 눌렀던 시간 저장
     private long backKeyPressedTime = 0;
@@ -45,6 +47,10 @@ public class LoginActivity extends AppCompatActivity {
 
         login_google = (SignInButton)findViewById(R.id.login_google);
         mAuth = FirebaseAuth.getInstance();
+        edt_id = (EditText)findViewById(R.id.edt_id);
+        edt_pw = (EditText)findViewById(R.id.edt_pw);
+        btn_login = (Button)findViewById(R.id.btn_login);
+        txt_join = (TextView)findViewById(R.id.txt_join);
 
         // Configure Google Sign In 구글 로그인 인증하기
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -63,6 +69,41 @@ public class LoginActivity extends AppCompatActivity {
             }
         });//login_google.setOnClickListener()
 
+        // 로그인 버튼 클릭
+        btn_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mAuth.signInWithEmailAndPassword(edt_id.getText().toString(), edt_pw.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            final ProgressDialog mDialog = new ProgressDialog(LoginActivity.this);
+                            mDialog.setMessage("로그인 중...");
+                            mDialog.show();
+                            //Toast.makeText(LoginActivity.this, edt_id.getText().toString()+" 님 로그인 성공", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+
+                            //자동로그인 기능
+                            //Intent intent = new Intent(LoginActivity.this, /* 지도 뜨는 메인화면 Activity 입력 */.class);
+                            //startActivity(intent);
+                            //finish();
+                        } else
+                            Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+
+        // 회원가입 버튼 클릭시 회원가입 화면으로 넘어감
+        txt_join.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), JoinActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }//onCreate()
 
@@ -85,15 +126,15 @@ public class LoginActivity extends AppCompatActivity {
         }
     }//onActivityResult()
 
-    private void firebaseAuthWithGoogle(String idToken) {
+    private void firebaseAuthWithGoogle(final String idToken) {
         //해당 사용자의 구글 정보를 파이어베이스에 넘겨준다.
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        final AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
                         } else {
                             Toast.makeText(getApplicationContext(),"로그인에 실패했습니다.", Toast.LENGTH_SHORT).show();
                         }
