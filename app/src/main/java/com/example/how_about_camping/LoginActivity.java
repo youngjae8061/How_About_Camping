@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -53,6 +55,11 @@ public class LoginActivity extends AppCompatActivity {
         btn_login = (Button)findViewById(R.id.btn_login);
         txt_join = (TextView)findViewById(R.id.txt_join);
 
+        //로그인상태라면 메인 화면으로 전환
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+        }
+
         // Configure Google Sign In 구글 로그인 인증하기
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -84,12 +91,9 @@ public class LoginActivity extends AppCompatActivity {
                             mDialog.show();
                             //Toast.makeText(LoginActivity.this, edt_id.getText().toString()+" 님 로그인 성공", Toast.LENGTH_SHORT).show();
                             //startActivity(new Intent(getApplicationContext(),MainActivity.class));
+
                             startMainActivity();
 
-                            //자동로그인 기능
-                            //Intent intent = new Intent(LoginActivity.this, /* 지도 뜨는 메인화면 Activity 입력 */.class);
-                            //startActivity(intent);
-                            //finish();
                         } else
                             Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
                     }
@@ -173,7 +177,7 @@ public class LoginActivity extends AppCompatActivity {
         if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
             toast.cancel();
             moveTaskToBack(true);						// 태스크를 백그라운드로 이동
-            finishAndRemoveTask();						// 액티비티 종료 + 태스크 리스트에서 지우기
+            //finishAndRemoveTask();						// 액티비티 종료 + 태스크 리스트에서 지우기
             android.os.Process.killProcess(android.os.Process.myPid());	// 앱 프로세스 종료
         }
     }//onBackPressed()

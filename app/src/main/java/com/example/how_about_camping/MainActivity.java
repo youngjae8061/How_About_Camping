@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }//onCreate()
 
+
+
     private void startLoginActivity(){
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
             toast.cancel();
             moveTaskToBack(true);						// 태스크를 백그라운드로 이동
-            finishAndRemoveTask();						// 액티비티 종료 + 태스크 리스트에서 지우기
+            //finishAndRemoveTask();						// 액티비티 종료 + 태스크 리스트에서 지우기
             android.os.Process.killProcess(android.os.Process.myPid());	// 앱 프로세스 종료
         }
     }//onBackPressed()
