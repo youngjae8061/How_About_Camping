@@ -1,5 +1,6 @@
 package com.example.how_about_camping;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -67,7 +68,7 @@ import noman.googleplaces.PlacesException;
 import noman.googleplaces.PlacesListener;
 import java.io.Serializable;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MapsActivity extends FragmentActivity  implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener, Serializable {
 
     static final String apimapKey = "AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI";
@@ -108,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button button = (Button)findViewById(R.id.button);
         previous_marker = new ArrayList<Marker>();
         mLayout = findViewById(R.id.layout_maps);
+
 
         button.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v){

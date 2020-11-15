@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -27,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
         imgbtn_logout = (ImageButton)findViewById(R.id.imgbtn_logout);
 
+        Button button3 = (Button)findViewById(R.id.button3); // 약국 지도 버튼
+
         //로그인상태가 아니라면 로그인 화면으로 전환
         if(FirebaseAuth.getInstance().getCurrentUser() == null){
             startActivity(new Intent(getApplicationContext(),LoginActivity.class));
@@ -40,9 +43,22 @@ public class MainActivity extends AppCompatActivity {
                 startLoginActivity();
             }
         });
+
+
+        button3.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                //startActivity(new Intent(getApplicationContext(),MapsActivity.class));
+                startMapsActivity();
+            }
+        });
+
     }//onCreate()
 
-
+    public void startMapsActivity(){ //약국지도화면으로 이동
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
 
     private void startLoginActivity(){
         Intent intent = new Intent(this, LoginActivity.class);
