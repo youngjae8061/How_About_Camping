@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         imgbtn_logout = (ImageButton)findViewById(R.id.imgbtn_logout);
 
         Button button3 = (Button)findViewById(R.id.button3); // 약국 지도 버튼
+        Button button4 = (Button)findViewById(R.id.button4); // 날씨 버튼
 
         //로그인상태가 아니라면 로그인 화면으로 전환
         if(FirebaseAuth.getInstance().getCurrentUser() == null){
@@ -45,10 +46,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        button3.setOnClickListener(new Button.OnClickListener() {
+        button3.setOnClickListener(new Button.OnClickListener() { //약국 지도 버튼 클릭
             public void onClick(View v) {
                 //startActivity(new Intent(getApplicationContext(),MapsActivity.class));
                 startMapsActivity();
+            }
+
+
+        });
+
+        button4.setOnClickListener(new View.OnClickListener(){ //날씨 버튼 클릭
+            public void onClick(View v){
+                startWeatherActivity();
             }
         });
 
@@ -56,6 +65,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void startMapsActivity(){ //약국지도화면으로 이동
         Intent intent = new Intent(this, MapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    public void startWeatherActivity(){ //날씨화면으로 이동
+        Intent intent = new Intent(this, WeatherActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
