@@ -1,5 +1,6 @@
 package com.example.how_about_camping;
 
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -34,15 +35,19 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-public class WeatherActivity extends AppCompatActivity {
+import java.util.Locale;
 
+public class WeatherActivity extends AppCompatActivity {
     Handler handler = new Handler();
+
 
     String lat, lon;
     final String TAG = "GPS";
@@ -59,7 +64,14 @@ public class WeatherActivity extends AppCompatActivity {
     private String rain_1h;
     private String rain_3h;
 
+    private String temp_f;
+    private String dailyLow;
+    private String dailyHigh;
+    private String temp_extra;
+
     ConstraintLayout background;
+    private ArrayList<HourlyItem> hourlyItemList = new ArrayList<>();
+    private ArrayList<DailyItem> dailyItemList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +160,7 @@ public class WeatherActivity extends AppCompatActivity {
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 fetchLocationData(location);
+               // futureFetchLocaionData(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -180,6 +193,7 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -418,6 +432,130 @@ public class WeatherActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
 
     }
+
+
+
+
+    private void futureFetchLocaionData(Location location) {
+        requestQueue = Volley.newRequestQueue(this);
+
+        String url="http://api.openweathermap.org/data/2.5/onecall?appid=8367e9646913ff43229d761791043b73&units=metric&id=1835848&lang=kr";
+        url += "&lat="+String.valueOf(lat)+"&lon="+String.valueOf(lon);
+
+        if(!hourlyItemList.isEmpty()) hourlyItemList.clear();
+        hourlyItemList = new ArrayList<>();
+
+        if(!dailyItemList.isEmpty()) dailyItemList.clear();
+        dailyItemList = new ArrayList<>();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try{
+                    JSONArray hourly_object = response.getJSONArray("hourly");
+                    JSONArray daily_object = response.getJSONArray("daily");
+
+                    for(int i=0;i<hourly_object.length() && i<36; i+=2){ //2시간 간격 | 18번만 나오게
+                        JSONObject rec= hourly_object.getJSONObject(i);
+
+                        //시간
+                        String dt = rec.getString("dt");
+                        long timestamp = Long.parseLong(dt);
+                        Date date = new java.util.Date(timestamp*1000L);
+                        SimpleDateFormat sdf = new java.text.SimpleDateFormat("a h" + "시");
+                        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                        dt = sdf.format(date);
+
+                        //온도
+                        temp_f = rec.getString("temp");
+                        temp_f = String.valueOf(Math.round(Double.valueOf(temp_f)));
+
+                        JSONArray weather_object = rec.getJSONArray("weather");
+                        JSONObject weather = weather_object.getJSONObject(0);
+                        String icon = weather.getString("icon");
+
+                        if(i==0){
+                            hourlyItemList.add(new HourlyItem("지금",icon,temp_f+"hPa"));
+                        }
+                        else {
+                            hourlyItemList.add(new HourlyItem(dt,icon,temp_f+"hPa"));
+                        }
+                    }
+
+                    for(int i=1; i<daily_object.length(); i++){
+                        JSONObject rec = daily_object.getJSONObject(i);
+                        JSONObject get_temp = rec.getJSONObject("temp");
+
+                        //요일
+                        String dt = rec.getString("dt");
+                        long timestamp = Long.parseLong(dt);
+                        Date date = new java.util.Date(timestamp*1000L);
+                        SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
+                        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                        dt = sdf.format(date);
+
+                        //최저기온
+                        dailyLow = get_temp.getString("min");
+                        dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+
+                        //최고기온
+                        dailyHigh = get_temp.getString("max");
+                        dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+
+                        //아이콘
+                        JSONArray weather_object = rec.getJSONArray("weather");
+                        JSONObject weather = weather_object.getJSONObject(0);
+                        String icon = weather.getString("icon");
+
+
+
+                        dailyItemList.add(new DailyItem(dt,dailyLow+"hPa",dailyHigh+"hPa",icon));
+                    }
+
+
+               /*     recyclerView = (RecyclerView) recyclerView.findViewById(R.id.hourlyRecycler);
+                    LinearLayoutManager manager= new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
+                    recyclerView.setLayoutManager(manager);
+
+
+                    HourlyItemAdapter adapter_h;
+                    adapter_h = new HourlyItemAdapter(getApplicationContext(),hourlyItemList);
+                    recyclerView.setAdapter(adapter_h);
+                    adapter_h.notifyDataSetChanged();
+
+                    recyclerView2 = (RecyclerView) recyclerView2.findViewById(R.id.dailyRecycler);
+                    LinearLayoutManager layoutManager= new LinearLayoutManager(getApplicationContext());
+                    recyclerView2.setLayoutManager(layoutManager);
+
+                    DailyItemAdapter adapter;
+                    adapter = new DailyItemAdapter(getApplicationContext(),dailyItemList);
+                    recyclerView2.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();*/
+
+                    HourlyItemAdapter adapter_h;
+                    adapter_h = new HourlyItemAdapter(getApplicationContext(),hourlyItemList);
+                    DailyItemAdapter adapter;
+                    adapter = new DailyItemAdapter(getApplicationContext(),dailyItemList);
+
+                }catch(JSONException e)
+                {
+                    Log.d(TAG, "error occured: " + e);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Something went wrong: " + error);
+                Toast.makeText(getApplicationContext(), "check your internet connection", Toast.LENGTH_LONG).show();
+            }
+        }
+        );
+
+        requestQueue.add(jsonObjectRequest);
+
+    }
+
+
 
     public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

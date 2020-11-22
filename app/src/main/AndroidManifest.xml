@@ -38,6 +38,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".MapsActivity" android:parentActivityName=".MainActivity"/>
         <activity android:name=".WeatherActivity" android:parentActivityName=".MainActivity"/>
+
     </application>
 
 </manifest>
