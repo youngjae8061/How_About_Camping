@@ -77,7 +77,6 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_main);
-
         background = (ConstraintLayout)findViewById(R.id.weatherBackground);
         weatherIconR = (ImageView) findViewById(R.id.weatherIcon);
         current_rain = (TextView) findViewById(R.id.textViewPrecipitation);
@@ -475,10 +474,10 @@ public class WeatherActivity extends AppCompatActivity {
                         String icon = weather.getString("icon");
 
                         if(i==0){
-                            hourlyItemList.add(new HourlyItem("지금",icon,temp_f+"hPa"));
+                        //    hourlyItemList.add(new HourlyItem("지금",icon,temp_f+"hPa"));
                         }
                         else {
-                            hourlyItemList.add(new HourlyItem(dt,icon,temp_f+"hPa"));
+                           // hourlyItemList.add(new HourlyItem(dt,icon,temp_f+"hPa"));
                         }
                     }
 
@@ -509,7 +508,7 @@ public class WeatherActivity extends AppCompatActivity {
 
 
 
-                        dailyItemList.add(new DailyItem(dt,dailyLow+"hPa",dailyHigh+"hPa",icon));
+                       // dailyItemList.add(new DailyItem(dt,dailyLow+"hPa",dailyHigh+"hPa",icon));
                     }
 
 
