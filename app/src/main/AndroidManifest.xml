@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> // 지도 내 위치
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> // 지도 내 기지국과의 위치
 
+    <uses-feature android:name="android.hardware.location.gps" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -35,6 +37,7 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".MapsActivity" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".WeatherActivity" android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>
