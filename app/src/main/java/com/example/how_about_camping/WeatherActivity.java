@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -35,13 +36,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -53,12 +52,14 @@ public class WeatherActivity extends AppCompatActivity {
     final String TAG = "GPS";
 
     LocationManager locationManager;
-    TextView humidityId, current_rain,tvCity, tvLatitude, tvLongitude, tvdescription, weatherMain, tvDate, tvTemp_c, temp_high, temp_low, feels_temp;
+    TextView dlt1, dlt2, dlt3, dlt4, dlt5, dht1, dht2, dht3, dht4, dht5, daily_yo1, daily_yo2, daily_yo3, daily_yo4, daily_yo5, humidityId, current_rain,tvCity, tvLatitude, tvLongitude, tvdescription, weatherMain, tvDate, tvTemp_c, temp_high, temp_low, feels_temp;
     RelativeLayout vProgressLayer;
     RequestQueue requestQueue;
 
     public static final Integer MY_PERMISSIONS_REQUEST_LOCATION = 0x5;
-    ImageView weatherIconR;
+    ImageView weatherIconR, daily_ico1, daily_ico2,daily_ico3,daily_ico4,daily_ico5;
+
+    private FrameLayout address_find;
 
     Bitmap bitmap;
     private String rain_1h;
@@ -70,13 +71,34 @@ public class WeatherActivity extends AppCompatActivity {
     private String temp_extra;
 
     ConstraintLayout background;
-    private ArrayList<HourlyItem> hourlyItemList = new ArrayList<>();
-    private ArrayList<DailyItem> dailyItemList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_main);
+
+          /* daily_yo1 = (TextView)findViewById(R.id.daily_yoil1);
+        daily_yo2 = (TextView)findViewById(R.id.daily_yoil2);
+        daily_yo3 = (TextView)findViewById(R.id.daily_yoil3);
+        daily_yo4 = (TextView)findViewById(R.id.daily_yoil4);
+        daily_yo5 = (TextView)findViewById(R.id.daily_yoil5);
+        daily_ico1 = (ImageView)findViewById(R.id.daily_image1);
+        daily_ico2 = (ImageView)findViewById(R.id.daily_image2);
+        daily_ico3 = (ImageView)findViewById(R.id.daily_image3);
+        daily_ico4 = (ImageView)findViewById(R.id.daily_image4);
+        daily_ico5 = (ImageView)findViewById(R.id.daily_image5);
+        dht1 = (TextView)findViewById(R.id.daily_high_temp1);
+        dht2 = (TextView)findViewById(R.id.daily_high_temp2);
+        dht3 = (TextView)findViewById(R.id.daily_high_temp3);
+        dht4 = (TextView)findViewById(R.id.daily_high_temp4);
+        dht5 = (TextView)findViewById(R.id.daily_high_temp5);
+        dlt1 = (TextView)findViewById(R.id.daily_low_temp1);
+        dlt2 = (TextView)findViewById(R.id.daily_low_temp2);
+        dlt3 = (TextView)findViewById(R.id.daily_low_temp3);
+        dlt4 = (TextView)findViewById(R.id.daily_low_temp4);
+        dlt5 = (TextView)findViewById(R.id.daily_low_temp5);
+
+*/
         background = (ConstraintLayout)findViewById(R.id.weatherBackground);
         weatherIconR = (ImageView) findViewById(R.id.weatherIcon);
         current_rain = (TextView) findViewById(R.id.textViewPrecipitation);
@@ -94,8 +116,16 @@ public class WeatherActivity extends AppCompatActivity {
         humidityId = (TextView)findViewById(R.id.humidity);
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
 
-        ImageButton backBtn = (ImageButton) findViewById(R.id.weatherBackBtn);
+        address_find= findViewById(R.id.search_layout);
+        address_find.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                startActivity(intent);
+            }
+        });
 
+        ImageButton backBtn = (ImageButton) findViewById(R.id.weatherBackBtn);
         setBackgroundByTime();
 
         // Register the listener with the Location Manager to receive location updates
@@ -159,7 +189,7 @@ public class WeatherActivity extends AppCompatActivity {
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 fetchLocationData(location);
-               // futureFetchLocaionData(location);
+                //futureFetchLocaionData(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -434,28 +464,27 @@ public class WeatherActivity extends AppCompatActivity {
 
 
 
-
+/*
     private void futureFetchLocaionData(Location location) {
         requestQueue = Volley.newRequestQueue(this);
+
+        Log.d(TAG, "새로운 위치가 업데이트되었습니다.");
+
+        lat = Double.toString(location.getLatitude());
+        lon = Double.toString(location.getLongitude());
+        Log.d(TAG, "DAta: " + location);
 
         String url="http://api.openweathermap.org/data/2.5/onecall?appid=8367e9646913ff43229d761791043b73&units=metric&id=1835848&lang=kr";
         url += "&lat="+String.valueOf(lat)+"&lon="+String.valueOf(lon);
 
-        if(!hourlyItemList.isEmpty()) hourlyItemList.clear();
-        hourlyItemList = new ArrayList<>();
-
-        if(!dailyItemList.isEmpty()) dailyItemList.clear();
-        dailyItemList = new ArrayList<>();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try{
-                    JSONArray hourly_object = response.getJSONArray("hourly");
-                    JSONArray daily_object = response.getJSONArray("daily");
 
-                    for(int i=0;i<hourly_object.length() && i<36; i+=2){ //2시간 간격 | 18번만 나오게
-                        JSONObject rec= hourly_object.getJSONObject(i);
+                   /* for(int i=0;i<response.getJSONArray("hourly").length() && i<36; i+=2){ //2시간 간격 | 18번만 나오게
+                        JSONObject rec= response.getJSONArray("hourly").getJSONObject(i);
 
                         //시간
                         String dt = rec.getString("dt");
@@ -469,72 +498,162 @@ public class WeatherActivity extends AppCompatActivity {
                         temp_f = rec.getString("temp");
                         temp_f = String.valueOf(Math.round(Double.valueOf(temp_f)));
 
-                        JSONArray weather_object = rec.getJSONArray("weather");
-                        JSONObject weather = weather_object.getJSONObject(0);
+                        JSONObject weather = rec.getJSONArray("weather").getJSONObject(0);
                         String icon = weather.getString("icon");
 
                         if(i==0){
-                        //    hourlyItemList.add(new HourlyItem("지금",icon,temp_f+"hPa"));
+                            TextView time_h = (TextView) findViewById(R.id.time_hourly);
+                            time_h.setText("지금");
+                            TextView temp_h = (TextView) findViewById(R.id.temp_hourly);
+                            ImageView image = (ImageView) findViewById(R.id.hourly_image);
+                         //   hourlyItemList.add(new HourlyItem("지금",icon,temp_f+"hPa"));
                         }
                         else {
-                           // hourlyItemList.add(new HourlyItem(dt,icon,temp_f+"hPa"));
+                            TextView time_h = (TextView) findViewById(getResources().getIdentifier("time_hourly"+(i), "id", "패키지"));
+                            TextView temp_h = (TextView) findViewById(getResources().getIdentifier("temp_hourly"+(i), "id", "패키지"));
+                            ImageView image = (ImageView) findViewById(getResources().getIdentifier("image_hourly"+(i), "id", "패키지"));
+                            //hourlyItemList.add(new HourlyItem(dt,icon,temp_f+"hPa"));
                         }
-                    }
+                    }*/
 
-                    for(int i=1; i<daily_object.length(); i++){
-                        JSONObject rec = daily_object.getJSONObject(i);
+        /*            for(int i=1; i<response.getJSONArray("daily").length(); i++){
+                        JSONObject rec = response.getJSONArray("daily").getJSONObject(i);
                         JSONObject get_temp = rec.getJSONObject("temp");
 
-                        //요일
-                        String dt = rec.getString("dt");
-                        long timestamp = Long.parseLong(dt);
-                        Date date = new java.util.Date(timestamp*1000L);
-                        SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
-                        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
-                        dt = sdf.format(date);
+                        int j=0;
+                        j++;
+                        if(j==1) {
+                            //요일
+                            String dt = rec.getString("dt");
+                            long timestamp = Long.parseLong(dt);
+                            Date date = new java.util.Date(timestamp * 1000L);
+                            SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                            dt = sdf.format(date);
+                            daily_yo1.setText(dt);
 
-                        //최저기온
-                        dailyLow = get_temp.getString("min");
-                        dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+                            //최저기온
+                            dailyLow = get_temp.getString("min");
+                            dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+                            dlt1.setText(dailyLow + "\u2103  ");
 
-                        //최고기온
-                        dailyHigh = get_temp.getString("max");
-                        dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+                            //최고기온
+                            dailyHigh = get_temp.getString("max");
+                            dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+                            dht1.setText(dailyHigh + "\u2103");
+                            //아이콘
+                       //     JSONArray weather_object = rec.getJSONArray("weather");
+                       //     JSONObject weather = weather_object.getJSONObject(0);
+                       //     String icon = weather.getString("icon");
 
-                        //아이콘
-                        JSONArray weather_object = rec.getJSONArray("weather");
-                        JSONObject weather = weather_object.getJSONObject(0);
-                        String icon = weather.getString("icon");
+                        }
+                        if(j==2) {
+                            //요일
+                            String dt = rec.getString("dt");
+                            long timestamp = Long.parseLong(dt);
+                            Date date = new java.util.Date(timestamp * 1000L);
+                            SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                            dt = sdf.format(date);
+                        //    daily_yo2.setText(dt);
 
+                            //최저기온
+                            dailyLow = get_temp.getString("min");
+                          //  dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+                         //   dlt2.setText(dailyLow + "\u2103");
 
+                            //최고기온
+                            dailyHigh = get_temp.getString("max");
+                          //  dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+                      //      dht2.setText(dailyHigh + "\u2103");
+                            //아이콘
+                      //      JSONArray weather_object = rec.getJSONArray("weather");
+                       //     JSONObject weather = weather_object.getJSONObject(0);
+                       //     String icon = weather.getString("icon");
 
-                       // dailyItemList.add(new DailyItem(dt,dailyLow+"hPa",dailyHigh+"hPa",icon));
-                    }
+                        }
+                        if(j==3) {
+                            //요일
+                            String dt = rec.getString("dt");
+                            long timestamp = Long.parseLong(dt);
+                            Date date = new java.util.Date(timestamp * 1000L);
+                            SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                            dt = sdf.format(date);
+                       //     daily_yo3.setText(dt);
 
+                            //최저기온
+                            dailyLow = get_temp.getString("min");
+                            dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+                      //      dlt3.setText(dailyLow + "\u2103");
 
-               /*     recyclerView = (RecyclerView) recyclerView.findViewById(R.id.hourlyRecycler);
-                    LinearLayoutManager manager= new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
-                    recyclerView.setLayoutManager(manager);
+                            //최고기온
+                            dailyHigh = get_temp.getString("max");
+                            dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+                      //      dht3.setText(dailyHigh + "\u2103");
+                            //아이콘
+                          //  JSONArray weather_object = rec.getJSONArray("weather");
+                          //  JSONObject weather = weather_object.getJSONObject(0);
+                         //   String icon = weather.getString("icon");
 
+                        }
+                        if(j==4) {
+                            //요일
+                            String dt = rec.getString("dt");
+                            long timestamp = Long.parseLong(dt);
+                            Date date = new java.util.Date(timestamp * 1000L);
+                            SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                            dt = sdf.format(date);
+                      //      daily_yo4.setText(dt);
 
-                    HourlyItemAdapter adapter_h;
-                    adapter_h = new HourlyItemAdapter(getApplicationContext(),hourlyItemList);
-                    recyclerView.setAdapter(adapter_h);
-                    adapter_h.notifyDataSetChanged();
+                            //최저기온
+                            dailyLow = get_temp.getString("min");
+                            dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+                     //       dlt4.setText(dailyLow + "\u2103");
 
-                    recyclerView2 = (RecyclerView) recyclerView2.findViewById(R.id.dailyRecycler);
-                    LinearLayoutManager layoutManager= new LinearLayoutManager(getApplicationContext());
-                    recyclerView2.setLayoutManager(layoutManager);
+                            //최고기온
+                            dailyHigh = get_temp.getString("max");
+                            dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+                       //     dht4.setText(dailyHigh + "\u2103");
+                            //아이콘
+                         //   JSONArray weather_object = rec.getJSONArray("weather");
+                         //   JSONObject weather = weather_object.getJSONObject(0);
+                         //   String icon = weather.getString("icon");
 
-                    DailyItemAdapter adapter;
-                    adapter = new DailyItemAdapter(getApplicationContext(),dailyItemList);
-                    recyclerView2.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();*/
+                        }
+                        if(j==5) {
+                            //요일
+                            String dt = rec.getString("dt");
+                            long timestamp = Long.parseLong(dt);
+                            Date date = new java.util.Date(timestamp * 1000L);
+                            SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEEE", Locale.KOREAN);
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+9"));
+                            dt = sdf.format(date);
+                       //     daily_yo5.setText(dt);
 
-                    HourlyItemAdapter adapter_h;
-                    adapter_h = new HourlyItemAdapter(getApplicationContext(),hourlyItemList);
-                    DailyItemAdapter adapter;
-                    adapter = new DailyItemAdapter(getApplicationContext(),dailyItemList);
+                            //최저기온
+                            dailyLow = get_temp.getString("min");
+                            dailyLow = String.valueOf(Math.round(Double.valueOf(dailyLow)));
+                     //       dlt5.setText(dailyLow + "\u2103");
+
+                            //최고기온
+                            dailyHigh = get_temp.getString("max");
+                            dailyHigh = String.valueOf(Math.round(Double.valueOf(dailyHigh)));
+                       //     dht5.setText(dailyHigh + "\u2103");
+                            //아이콘
+                            //JSONArray weather_object = rec.getJSONArray("weather");
+                          //  JSONObject weather = weather_object.getJSONObject(0);
+                          //  String icon = weather.getString("icon");
+
+                        }
+                  //      TextView yoil=(TextView)findViewById(getResources().getIdentifier("daily_yoil"+(i), "id", "패키지"));
+                  //      TextView low=(TextView)findViewById(getResources().getIdentifier("daily_low"+(i), "id", "패키지"));
+                 //       TextView high=(TextView)findViewById(getResources().getIdentifier("daily_high"+(i), "id", "패키지"));
+                 //       ImageView image=(ImageView)findViewById(getResources().getIdentifier("daily_image"+(i), "id", "패키지"));
+
+                }
+
 
                 }catch(JSONException e)
                 {
@@ -552,7 +671,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         requestQueue.add(jsonObjectRequest);
 
-    }
+    }*/
 
 
 

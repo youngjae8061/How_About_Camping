@@ -3,7 +3,7 @@ apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "com.example.how_about_camping"
@@ -25,7 +25,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
@@ -43,9 +43,9 @@ dependencies {
     //페이스북 로그인 연동
     //implementation 'com.facebook.android:facebook-login:[8.1)'
     implementation 'com.google.android.gms:play-services-base:17.5.0'
-    //implementation 'com.android.support:appcompat-v7:26.+'
+    implementation 'com.android.support:appcompat-v7:'
     implementation 'com.android.support.constraint:constraint-layout:2.0.4'
-    //implementation 'com.android.support:design:26.+'
+    implementation 'com.android.support:design:'
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.loopj.android:android-async-http:1.4.9'
     implementation 'org.jsoup:jsoup:1.11.3'

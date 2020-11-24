@@ -4,5 +4,6 @@
     <!--
     <string name="facebook_app_id">374963257279398</string> <string name="fb_login_protocol_scheme">fb374963257279398</string>
     -->
+    <string name="plz_enter_address">주소를 입력하세요</string>
 
 </resources>
