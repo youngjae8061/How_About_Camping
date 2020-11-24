@@ -1,6 +1,7 @@
 package com.example.how_about_camping;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.how_about_camping.WeatherActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,7 +37,7 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SearchResultAdapter adapter;
     private ArrayList<AddressData> addressList;
-
+    final String TAG = "location";
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +77,7 @@ public class SearchActivity extends AppCompatActivity {
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_search_result, parent,false);
 
-            return new ViewHolder(v);
+            return new SearchResultAdapter.ViewHolder(v);
         }
 
         @Override
@@ -116,8 +119,12 @@ public class SearchActivity extends AppCompatActivity {
                         PreferenceManager.setString(getApplicationContext(),"CITY",temp);
 
                         Toast.makeText(getApplicationContext(), "주소가 "+temp+"로 설정되었습니다",Toast.LENGTH_SHORT).show();
-
+                        Log.d(TAG, "DAta3: " + lat + lon);
                         finish();
+                        startActivity(new Intent(getApplicationContext(),WeatherActivity.class));
+
+
+
                     }
                 });
             }
