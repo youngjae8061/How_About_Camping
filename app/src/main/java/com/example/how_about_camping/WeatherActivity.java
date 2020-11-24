@@ -64,7 +64,9 @@ public class WeatherActivity extends AppCompatActivity {
     final String TAG = "GPS";
 
     LocationManager locationManager;
-    TextView dlt1, dlt2, dlt3, dlt4, dlt5, dht1, dht2, dht3, dht4, dht5, daily_yo1, daily_yo2, daily_yo3, daily_yo4, daily_yo5, humidityId, current_rain,tvCity, tvLatitude, tvLongitude, tvdescription, weatherMain, tvDate, tvTemp_c, temp_high, temp_low, feels_temp;
+    TextView dlt1, dlt2, dlt3, dlt4, dlt5, dht1, dht2, dht3, dht4, dht5, daily_yo1, daily_yo2,
+            daily_yo3, daily_yo4, daily_yo5, humidityId, current_rain,tvCity,
+            tvdescription, weatherMain, tvDate, tvTemp_c, temp_high, temp_low, feels_temp, tvlocation;
     RelativeLayout vProgressLayer;
     RequestQueue requestQueue;
 
@@ -117,15 +119,14 @@ public class WeatherActivity extends AppCompatActivity {
 
 
         background = (ConstraintLayout)findViewById(R.id.weatherBackground);
-        weatherIconR = (ImageView) findViewById(R.id.weatherIcon);
-        current_rain = (TextView) findViewById(R.id.textViewPrecipitation);
-        tvCity = (TextView) findViewById(R.id.tvCity);
-        // tvLatitude = (TextView) findViewById(R.id.tvLatitude);
-        //  tvLongitude = (TextView) findViewById(R.id.tvLongitude);
-        tvdescription = (TextView) findViewById(R.id.weather_description);
-        tvDate = (TextView) findViewById(R.id.tvDate);
-        tvTemp_c = (TextView) findViewById(R.id.tvTemp_c);
-        vProgressLayer = (RelativeLayout) findViewById(R.id.progressLayer);
+        weatherIconR = (ImageView)findViewById(R.id.weatherIcon);
+        current_rain = (TextView)findViewById(R.id.textViewPrecipitation);
+        tvCity = (TextView)findViewById(R.id.tvLocation);
+        tvlocation = (TextView)findViewById(R.id.tvLocation);
+        tvdescription = (TextView)findViewById(R.id.weather_description);
+        tvDate = (TextView)findViewById(R.id.tvDate);
+        tvTemp_c = (TextView)findViewById(R.id.tvTemp_c);
+        vProgressLayer = (RelativeLayout)findViewById(R.id.progressLayer);
         temp_high = (TextView)findViewById(R.id.temp_high);
         temp_low = (TextView)findViewById(R.id.temp_low);
         feels_temp = (TextView)findViewById(R.id.feels_temp);
@@ -133,7 +134,7 @@ public class WeatherActivity extends AppCompatActivity {
         humidityId = (TextView)findViewById(R.id.humidity);
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
 
-        address_find= findViewById(R.id.search_layout);
+        address_find = findViewById(R.id.search_layout);
         address_find.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -167,14 +168,12 @@ public class WeatherActivity extends AppCompatActivity {
         displayWeather(getApplicationContext());
         ImageButton backBtn = (ImageButton) findViewById(R.id.weatherBackBtn);
         setBackgroundByTime();
-        // Register the listener with the Location Manager to receive location updates
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
             } else {
@@ -182,8 +181,6 @@ public class WeatherActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
-                // permission denied, boo! Disable the
-                // functionality that depends on this permission.
             }
         } else {
             setupListeners();
@@ -298,9 +295,6 @@ public class WeatherActivity extends AppCompatActivity {
 
         Log.d(TAG, "새로운 위치가 업데이트되었습니다.");
 
-        //  lat = Double.toString(myLocation.getLatitude());
-        // lon = Double.toString(myLocation.getLongitude());
-
 
         String url = "https://api.openweathermap.org/data/2.5/weather?appid=8367e9646913ff43229d761791043b73&units=metric&id=1835848&lang=kr";
         url += "&lat=" + String.valueOf(lat) + "&lon=" + String.valueOf(lon);
@@ -311,8 +305,8 @@ public class WeatherActivity extends AppCompatActivity {
                         Log.d(TAG, "DAta: " + response);
                         try {
                             String locationTemp = response.getJSONObject("main").getString("temp");
-                            String country = response.getJSONObject("sys").getString("country");
-                            String place = response.getString("name") + ", " + country;
+                            //String country = response.getJSONObject("sys").getString("country");
+                            //String place = response.getString("name") + ", " + country;
                             String temp_highR = response.getJSONObject("main").getString("temp_max");
                             String temp_lowR = response.getJSONObject("main").getString("temp_min");
                             String feels_tempR = response.getJSONObject("main").getString("feels_like");
@@ -325,18 +319,13 @@ public class WeatherActivity extends AppCompatActivity {
                             tvdescription.setText(weatherDescription);
                             weatherMain.setText(locationWeather);
                             tvTemp_c.setText(locationTemp + "\u2103");
-                            //   tvLatitude.setText(lat);
-                            // tvLongitude.setText(lon);
                             tvDate.setText(currentDateTimeString);
-                            tvCity.setText(place);
+                           // tvCity.setText(place);
                             vProgressLayer.setVisibility(View.GONE);
                             temp_high.setText("최고온도" + " " + temp_highR + "\u2103");
                             temp_low.setText("최저온도" + " " + temp_lowR + "\u2103");
                             feels_temp.setText(feels_tempR + "\u2103");
                             humidityId.setText(humidityR + "%");
-
-                            // weatherIconR.setIma
-                            //날씨 아이콘
 
                             int resID = getResId("icon_" + weatherIconLoad, R.drawable.class);
                             weatherIconR.setImageResource(resID);
@@ -400,7 +389,6 @@ public class WeatherActivity extends AppCompatActivity {
                                     break;
                             }*/
 
-                            //강우량
                             if (response.has("rain")) {
                                 JSONObject rain_object = response.getJSONObject("rain");
                                 if (rain_object.has("1h")) {
@@ -492,8 +480,6 @@ public class WeatherActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "check your internet connection", Toast.LENGTH_LONG).show();
                     }
                 });
-
-        //add request to queue
 
         requestQueue.add(jsonObjectRequest);
 

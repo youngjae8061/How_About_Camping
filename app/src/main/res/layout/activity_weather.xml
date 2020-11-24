@@ -118,8 +118,8 @@
 
             <ImageView
                 android:id="@+id/weatherIcon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 app:srcCompat="@android:drawable/ic_popup_sync" />
 
             <LinearLayout
@@ -133,16 +133,20 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="0 °C"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/tvCity"
+                    android:id="@+id/tvLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:foregroundGravity="center"
                     android:gravity="center"
-                    android:text="Weather"
-                    android:textColor="#ffffff"
-                    android:textSize="20sp"
+                    android:text="TextView"
+                    android:textColor="#FAFAFA"
+                    android:textColorHint="#FFFFFF"
+                    android:textSize="28sp"
                     android:textStyle="bold" />
 
             </LinearLayout>

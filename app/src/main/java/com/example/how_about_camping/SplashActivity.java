@@ -44,6 +44,12 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        if (!checkLocationServicesStatus()) {
+            showDialogForLocationServiceSetting();
+        }else {
+            checkRunTimePermission();
+        }
+
         try{
             Thread.sleep(3000);
         }catch (InterruptedException e){
@@ -94,7 +100,7 @@ public class SplashActivity extends Activity {
 
             }
             else {
-                latitude = 37.5172f; longitude = 127.0473f;
+                latitude = 37.5172f; longitude = 127.0473f; //서울 강남
             }
             PreferenceManager.setFloat(this,"LATITUDE",(float)latitude);
             PreferenceManager.setFloat(this,"LONGITUDE",(float)longitude);
@@ -125,18 +131,14 @@ public class SplashActivity extends Activity {
         return address.getAddressLine(0);
     }
 
-    /*
-     * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
-     */
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
         if ( permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
 
-            // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
             boolean check_result = true;
 
 
-            // 모든 퍼미션을 허용했는지 체크합니다.
+            //퍼미션 허용 여부 체크
             for (int result : grandResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
                     check_result = false;
@@ -155,7 +157,7 @@ public class SplashActivity extends Activity {
                 }
             }
             else {
-                // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
+                //퍼미션 거부 시
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
                         || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
 
@@ -169,8 +171,7 @@ public class SplashActivity extends Activity {
     }
 
     void checkRunTimePermission(){
-        //런타임 퍼미션 처리
-        // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
+        //퍼미션 체크
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(SplashActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(SplashActivity.this,
@@ -178,11 +179,6 @@ public class SplashActivity extends Activity {
 
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
                 hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
-            // 2. 이미 퍼미션을 가지고 있다면
-            // ( 안드로이드 6.0 이하 버전은 런타임 퍼미션이 필요없기 때문에 이미 허용된 걸로 인식합니다.)
-
-            // 3.  위치 값을 가져올 수 있음
-
             if(checkInternetConnectivity()){
                 initSharedPreference();
                 Intent intent = new Intent(this, MainActivity.class);
@@ -191,18 +187,16 @@ public class SplashActivity extends Activity {
             }
 
 
-        } else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
+        } else {
 
-            // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
+            //퍼미션 거부 시
             if (ActivityCompat.shouldShowRequestPermissionRationale(SplashActivity.this, REQUIRED_PERMISSIONS[0])) {
-                // 3-2. 요청을 진행하기 전에 사용자가에게 퍼미션이 필요한 이유를 설명해줄 필요가 있습니다.
                 Toast.makeText(SplashActivity.this, "이 앱을 실행하려면 위치 접근 권한이 필요합니다.", Toast.LENGTH_LONG).show();
-                // 3-3. 사용자게에 퍼미션 요청을 합니다. 요청 결과는 onRequestPermissionResult에서 수신됩니다.
+                //퍼미션 요청
                 ActivityCompat.requestPermissions(SplashActivity.this, REQUIRED_PERMISSIONS,
                         PERMISSIONS_REQUEST_CODE);
             } else {
-                // 4-1. 사용자가 퍼미션 거부를 한 적이 없는 경우에는 퍼미션 요청을 바로 합니다.
-                // 요청 결과는 onRequestPermissionResult에서 수신됩니다.
+                //퍼미션 요청
                 ActivityCompat.requestPermissions(SplashActivity.this, REQUIRED_PERMISSIONS,
                         PERMISSIONS_REQUEST_CODE);
             }
