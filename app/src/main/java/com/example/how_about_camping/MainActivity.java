@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500;
-    
+
     // 사용 권한 요청을 구별하기 위해 사용함
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private long backKeyPressedTime = 0;
     // 첫 번째 뒤로가기 버튼을 누를때 표시
     private Toast toast;
-    
+
     private GeoPoint gp;
     private MarkerOptions markerOptions;
     private FirebaseFirestore db; //파이어베이스 인스턴스
@@ -254,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         }
                     });
-        }else startToast("검색할 위치를 입력해주세요.");
+        }else startToast("검색할 장소를 입력해주세요.");
     }
 
     //후기내용으로 검색
@@ -286,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         }
                     });
-        }else startToast("검색할 위치를 입력해주세요.");
+        }else startToast("검색할 내용을 입력해주세요.");
     }
 
     public void startMapsActivity() { //약국지도화면으로 이동
