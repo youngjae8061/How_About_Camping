@@ -14,19 +14,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/edt_sch"
-            android:layout_width="370dp"
-            android:layout_height="wrap_content"
-            android:hint="Enter the Address." />
 
-        <ImageButton
-            android:id="@+id/btn_sch"
-            android:layout_width="43dp"
-            android:layout_height="38dp"
-            android:layout_centerInParent="true"
-            android:layout_toRightOf="@+id/edt_sch"
-            app:srcCompat="@drawable/places_ic_search" />
     </RelativeLayout>
 
     <FrameLayout
@@ -46,10 +34,31 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|bottom">
 
+            <EditText
+                android:id="@+id/edt_sch"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_alignParentLeft="true"
+                android:hint="Enter the Address." />
+
+            <ImageButton
+                android:id="@+id/btn_sch"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginRight="10dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_toRightOf="@+id/edt_sch"
+                app:srcCompat="@drawable/places_ic_search" />
+
             <ImageButton
                 android:id="@+id/imgbtn_logout"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:layout_below="@+id/btn_sch"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/ic_baseline_exit_to_app_24" />
 

@@ -9,14 +9,18 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,6 +79,9 @@ import noman.googleplaces.PlacesListener;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback, Serializable {
 
+    FirebaseAuth fAuth;
+    FirebaseFirestore fStore;
+
     static final String apimapKey = "AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI";
 
     private GoogleMap mMap;
@@ -104,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton imgbtn_logout;
     private Geocoder geocoder;
     private ImageButton btn_sch;
+    private Button btn_review;
     private TextView edt_sch;
     // 마지막으로 뒤로가기 버튼을 눌렀던 시간 저장
     private long backKeyPressedTime = 0;
@@ -114,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MarkerOptions markerOptions;
     private FirebaseFirestore db; //파이어베이스 인스턴스
     private double get_latitude, get_longitude;
-
+    SupportMapFragment mapFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,13 +131,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_sch = (ImageButton) findViewById(R.id.btn_sch);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         imgbtn_logout = (ImageButton) findViewById(R.id.imgbtn_logout);
-        
+
+        btn_review = (Button)findViewById(R.id.btn_review);//리뷰버튼
         Button button3 = (Button) findViewById(R.id.button3); // 약국 지도 버튼
         Button button4 = (Button) findViewById(R.id.button4); // 날씨 버튼
+
+        //파이어베이스 파이어스토어
+        fAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
 
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -184,7 +197,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else startToast("검색할 위치를 입력해주세요.");
             }
         });
-        
+
+        btn_review.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent_rv = new Intent(MainActivity.this, ReviewActivity.class);
+                intent_rv.putExtra("latitude", get_latitude);
+                intent_rv.putExtra("longitude", get_longitude);
+                startActivity(intent_rv);
+            }
+        });
+
         imgbtn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -231,7 +254,61 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mMap = googleMap;
 
+        googleMap.setIndoorEnabled(true);   //실내에서작동
+        googleMap.setBuildingsEnabled(true);//건물표시
+        googleMap.getUiSettings().setZoomControlsEnabled(true);//UI에서 Zoom 컨트롤하겠다.
+
         setDefaultLocation();
+
+
+        /*View toolbar = ((View) mapFragment.getView().findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("4"));
+
+        // and next place it, for example, on bottom right (as Google Maps app)
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) toolbar.getLayoutParams();
+        // position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rlp.setMargins(0, 0, 30, 30);
+
+
+        View locationButton = ((View) mapFragment.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+// position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlp.setMargins(0, 180, 180, 0);*/
+
+        /*try {
+            final ViewGroup parent = (ViewGroup) mapFragment.getView().findViewWithTag("GoogleMapMyLocationButton").getParent();
+            parent.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Resources r = getResources();
+                        //convert our dp margin into pixels
+                        int marginPixels = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, r.getDisplayMetrics());
+                        // Get the map compass view
+                        View mapCompass = parent.getChildAt(4);
+
+                        // create layoutParams, giving it our wanted width and height(important, by default the width is "match parent")
+                        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(mapCompass.getHeight(),mapCompass.getHeight());
+                        // position on top right
+                        //rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,100);
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,100);
+                        //rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                        //give compass margin
+                        rlp.setMargins(marginPixels, marginPixels, marginPixels, marginPixels);
+                        mapCompass.setLayoutParams(rlp);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }*/
+
 
         // 권한 처리
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
