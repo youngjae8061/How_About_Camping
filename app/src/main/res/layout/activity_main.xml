@@ -5,33 +5,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:weightSum="10">
+    tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+
+
+    <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/edt_sch"
             android:layout_width="370dp"
             android:layout_height="wrap_content"
             android:hint="Enter the Address." />
 
         <ImageButton
-            android:id="@+id/button"
+            android:id="@+id/btn_sch"
             android:layout_width="43dp"
             android:layout_height="38dp"
-            android:layout_weight="1"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@+id/edt_sch"
             app:srcCompat="@drawable/places_ic_search" />
-
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+
 
         <fragment
             android:id="@+id/map"
@@ -40,40 +41,64 @@
             android:layout_height="1000dp"
             tools:context="com.example.abcd.googlemap.MapsActivity" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom">
 
-            <TableRow
+            <ImageButton
+                android:id="@+id/imgbtn_logout"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_baseline_exit_to_app_24" />
+
+            <Button
+                android:id="@+id/btn_review"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center">
+                android:layout_above="@+id/linear1"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@android:color/holo_red_dark"
+                android:text="+"
+                android:textColor="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="36sp" />
 
-                <Button
-                    android:id="@+id/button3"
-                    android:layout_width="142dp"
+            <LinearLayout
+                android:id="@+id/linear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal">
+
+                <TableRow
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:text="주변 약국 지도" />
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp">
 
-                <Button
-                    android:id="@+id/button4"
-                    android:layout_width="138dp"
-                    android:layout_height="wrap_content"
-                    android:text="날씨 확인" />
+                    <Button
+                        android:id="@+id/button3"
+                        android:layout_width="142dp"
+                        android:layout_height="wrap_content"
+                        android:text="주변 약국 지도" />
 
-            </TableRow>
+                    <Button
+                        android:id="@+id/button4"
+                        android:layout_width="142dp"
+                        android:layout_height="wrap_content"
+                        android:text="날씨 확인" />
 
-        </LinearLayout>
+                </TableRow>
 
-        <ImageButton
-            android:id="@+id/imgbtn_logout"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="right"
-            android:src="@drawable/ic_baseline_exit_to_app_24" />
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
     </FrameLayout>
 
 </LinearLayout>
