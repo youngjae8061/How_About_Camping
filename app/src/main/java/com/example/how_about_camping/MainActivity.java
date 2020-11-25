@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
                                             mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
-                                            markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name")));
+                                            markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review")));
                                             mMap.addMarker(markerOptions);
                                         }
                                     } else {
