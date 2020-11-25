@@ -3,8 +3,8 @@
     package="com.example.how_about_camping">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> // 지도 내 위치
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> // 지도 내 기지국과의 위치
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> <!--// 지도 내 위치-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> <!--// 지도 내 기지국과의 위치-->
 
     <uses-feature android:name="android.hardware.location.gps" />
 
@@ -20,7 +20,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI" /> //구글 지도 API 키
+            android:value="AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI" /> <!--//구글 지도 API 키-->
 
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".JoinActivity" /> <!-- <activity> ~ </activity> 사이에 <intent-filter>가 있는 activity가 실행시 가장 먼저 화면이 뜸 -->

@@ -14,19 +14,20 @@
         android:layout_gravity="center"
         android:layout_marginTop="150dp"
         android:layout_marginBottom="40dp"/>
-<!--
+
     <EditText
-        android:id="@+id/edt_name"
+        android:id="@+id/edt_join_name"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="10dp"
         android:drawableStart="@drawable/ic_baseline_person_24"
         android:drawableLeft="@drawable/ic_baseline_person_24"
-        android:background="@drawable/style_login_id"
         android:padding="10dp"
+        android:ems="10"
         android:textStyle="bold"
-        android:hint="   이 름" />  -->
+        android:hint="   이      름"
+        android:background="@drawable/style_login_id"/>
 
     <EditText
         android:id="@+id/edt_join_id"
@@ -40,7 +41,7 @@
         android:ems="10"
         android:textStyle="bold"
         android:hint="   이 메 일"
-        android:background="@drawable/style_login_id"
+        android:background="#E6CDA9"
         android:inputType="textEmailAddress" />
 
     <EditText
@@ -70,8 +71,22 @@
         android:ems="10"
         android:textStyle="bold"
         android:hint="   비 밀 번 호 확 인"
-        android:background="@drawable/style_login_pw"
+        android:background="#E6CDA9"
         android:inputType="textPassword" />
+
+    <EditText
+        android:id="@+id/edt_join_phonenumber"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:drawableStart="@drawable/ic_baseline_local_phone_24"
+        android:drawableLeft="@drawable/ic_baseline_local_phone_24"
+        android:padding="10dp"
+        android:ems="10"
+        android:textStyle="bold"
+        android:hint="   전 화 번 호"
+        android:background="@drawable/style_login_pw" />
 
     <Button
         android:id="@+id/btn_join"

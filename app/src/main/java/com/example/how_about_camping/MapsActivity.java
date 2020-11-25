@@ -1,5 +1,25 @@
 package com.example.how_about_camping;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.Barrier;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,12 +35,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -40,7 +54,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -49,8 +63,10 @@ import java.util.Locale;
 import noman.googleplaces.NRPlaces;
 import noman.googleplaces.Place;
 import noman.googleplaces.PlaceType;
+import noman.googleplaces.PlacesListener;
 import noman.googleplaces.PlacesException;
 import noman.googleplaces.PlacesListener;
+import java.io.Serializable;
 
 public class MapsActivity extends FragmentActivity  implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback, PlacesListener, Serializable {
@@ -83,8 +99,6 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
 
     private View mLayout;
 
-//    ImageButton backBtn = (ImageButton) findViewById(R.id.backBtn);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,8 +109,6 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
         Button button = (Button)findViewById(R.id.button);
         previous_marker = new ArrayList<Marker>();
         mLayout = findViewById(R.id.layout_maps);
-
-
 
 
         button.setOnClickListener(new Button.OnClickListener() {
@@ -568,8 +580,8 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                 .listener(MapsActivity.this)
                 .key("AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI")
                 .latlng(location.latitude, location.longitude)//현재 위치
-                .radius(2500) //2500M 내에서 검색
-                .type(PlaceType.PHARMACY) //PHARMACY 약국
+                .radius(500) //500M 내에서 검색
+                .type(PlaceType.PHARMACY) //PHARMACY 약국. AVD TEST 진행해야함
                 .build()
                 .execute();
     }

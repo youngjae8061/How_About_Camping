@@ -48,7 +48,7 @@ import java.util.List;
 
 public class JoinActivity extends AppCompatActivity {
 
-    EditText edt_name, edt_join_id, edt_join_pw, edt_join_pwchk;
+    EditText edt_join_name, edt_join_id, edt_join_pw, edt_join_pwchk, edt_join_phonenumber;
     Button btn_join;
     private FirebaseAuth mAuth;
     FirebaseFirestore fStore;
@@ -61,15 +61,18 @@ public class JoinActivity extends AppCompatActivity {
     // 첫 번째 뒤로가기 버튼을 누를때 표시
     private Toast toast;
 
+    String userID, userEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
-        //edt_name = (EditText)findViewById(R.id.edt_name);
+        edt_join_name = (EditText)findViewById(R.id.edt_join_name);
         edt_join_id = (EditText)findViewById(R.id.edt_join_id);
         edt_join_pw = (EditText)findViewById(R.id.edt_join_pw);
         edt_join_pwchk = (EditText)findViewById(R.id.edt_join_pwchk);
+        edt_join_phonenumber = (EditText)findViewById(R.id.edt_join_phonenumber);
         btn_join = (Button)findViewById(R.id.btn_join);
 
         mAuth = FirebaseAuth.getInstance();
@@ -78,6 +81,13 @@ public class JoinActivity extends AppCompatActivity {
         btn_join.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(edt_join_name.getText().toString().length() == 0){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
+                    dialog = builder.setMessage("이름은 빈칸일 수 없습니다.")
+                            .setPositiveButton("확인",null).create();
+                    dialog.show();
+                    return;
+                }
                 if(edt_join_id.getText().toString().length() == 0){
                     AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
                     dialog = builder.setMessage("아이디는 빈칸일 수 없습니다.")
@@ -99,7 +109,14 @@ public class JoinActivity extends AppCompatActivity {
                     dialog.show();
                     return;
                 }
-                join(edt_join_id.getText().toString(), edt_join_pw.getText().toString());
+                if(edt_join_phonenumber.getText().toString().length() == 0){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
+                    dialog = builder.setMessage("전화번호는 빈칸일 수 없습니다.")
+                            .setPositiveButton("확인",null).create();
+                    dialog.show();
+                    return;
+                }
+                join(edt_join_name.getText().toString(), edt_join_id.getText().toString(), edt_join_pw.getText().toString(), edt_join_phonenumber.getText().toString());
 
 
                 /*
@@ -129,15 +146,13 @@ public class JoinActivity extends AppCompatActivity {
     }//onStart()
 
     //회원가입하는 로직
-    private void join(String email, String password){
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+    private void join(final String name, final String email, final String password, final String phone){/*
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(JoinActivity.this, "가입을 환영합니다!",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(JoinActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(getApplicationContext(),LoginActivity.class));
                         } else {
                             // If sign in fails, display a message to the user.
@@ -153,6 +168,35 @@ public class JoinActivity extends AppCompatActivity {
 
                         // ...
                     }
-                });
+                });*/
+
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task .isSuccessful()) {
+                    Toast.makeText(JoinActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
+                    userID = mAuth.getCurrentUser().getUid();
+                    userEmail = mAuth.getCurrentUser().getEmail();
+                    DocumentReference documentReference = fStore.collection("users").document(userID);
+
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("name", name);
+                    userMap.put("email", email);
+                    userMap.put("pwd", password);
+                    userMap.put("phone", phone);
+
+                    documentReference.set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "successed. user Profile is created for" + userID);
+                        }
+                    });
+                    startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                } else{
+                    Toast.makeText(JoinActivity.this, "회원가입에 실패했습니다." + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        
     }//join()
 }
