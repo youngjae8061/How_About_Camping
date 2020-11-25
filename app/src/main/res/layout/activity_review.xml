@@ -45,14 +45,12 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="후기 : "
-            android:textColor="#000000" />
+            android:text="후기 : "/>
         <EditText
             android:id="@+id/edt_review"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="장소명"
-            android:textColorHint="#333333"/>
+            android:hint="후기"/>
     </LinearLayout>
     <Button
         android:id="@+id/btn_upload"

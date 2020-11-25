@@ -34,31 +34,52 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|bottom">
 
-            <EditText
-                android:id="@+id/edt_sch"
-                android:layout_width="350dp"
+            <Switch
+                android:id="@+id/switch_sch"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginLeft="10dp"
-                android:layout_alignParentLeft="true"
-                android:hint="Enter the Address." />
-
-            <ImageButton
-                android:id="@+id/btn_sch"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="25dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_centerHorizontal="true"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:layout_toRightOf="@+id/edt_sch"
-                app:srcCompat="@drawable/places_ic_search" />
+                android:text="  장소명 / 후기 검색 스위치"
+                android:background="@drawable/style_button"/>
+
+            <LinearLayout
+                android:id="@+id/linear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/switch_sch"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:orientation="horizontal"
+                android:background="@drawable/style_button">
+                <EditText
+                    android:id="@+id/edt_sch"
+                    android:layout_width="330dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_alignParentLeft="true"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:hint="   장소명으로 검색하세요."/>
+
+                <Button
+                    android:id="@+id/btn_sch"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="40dp"
+                    android:background="@drawable/ic_baseline_search_24"/>
+
+            </LinearLayout>
+
 
             <ImageButton
                 android:id="@+id/imgbtn_logout"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_below="@+id/btn_sch"
+                android:layout_below="@+id/linear"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/ic_baseline_exit_to_app_24" />
 

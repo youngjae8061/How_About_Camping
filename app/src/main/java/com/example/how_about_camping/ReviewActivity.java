@@ -128,5 +128,4 @@ public class ReviewActivity extends AppCompatActivity {
                     }
                 });
     }
-
 }

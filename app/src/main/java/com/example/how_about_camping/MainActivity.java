@@ -19,8 +19,11 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,6 +85,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
 
+    Switch switch_sch;
+    boolean sch = false;
+
     static final String apimapKey = "AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI";
 
     private GoogleMap mMap;
@@ -110,8 +116,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     ImageButton imgbtn_logout;
     private Geocoder geocoder;
-    private ImageButton btn_sch;
-    private Button btn_review;
+    private Button btn_review,btn_sch;
     private TextView edt_sch;
     // 마지막으로 뒤로가기 버튼을 눌렀던 시간 저장
     private long backKeyPressedTime = 0;
@@ -123,22 +128,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseFirestore db; //파이어베이스 인스턴스
     private double get_latitude, get_longitude;
     SupportMapFragment mapFragment;
+
+    Button button3, button4;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        edt_sch = (TextView) findViewById(R.id.edt_sch);
-        btn_sch = (ImageButton) findViewById(R.id.btn_sch);
+
+        findViewById(R.id.btn_sch).setOnClickListener(onClickListener);
+        findViewById(R.id.btn_review).setOnClickListener(onClickListener);//리뷰버튼
+        findViewById(R.id.imgbtn_logout).setOnClickListener(onClickListener);
+        findViewById(R.id.button3).setOnClickListener(onClickListener);; // 약국 지도 버튼
+        findViewById(R.id.button4).setOnClickListener(onClickListener);; // 날씨 버튼
+        switch_sch = (Switch)findViewById(R.id.switch_sch);
+        CheckState();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        imgbtn_logout = (ImageButton) findViewById(R.id.imgbtn_logout);
 
-        btn_review = (Button)findViewById(R.id.btn_review);//리뷰버튼
-        Button button3 = (Button) findViewById(R.id.button3); // 약국 지도 버튼
-        Button button4 = (Button) findViewById(R.id.button4); // 날씨 버튼
 
         //파이어베이스 파이어스토어
         fAuth = FirebaseAuth.getInstance();
@@ -159,76 +168,126 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         previous_marker = new ArrayList<Marker>();
         mLayout = findViewById(R.id.layout_maps);
 
+        switch_sch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                CheckState();
+            }
+        });
+
         //로그인상태가 아니라면 로그인 화면으로 전환
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
-
-        btn_sch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mMap.clear();
-                final String sch = edt_sch.getText().toString();
-                if(sch.length() >0 ){
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                    db.collection("review")
-                            .whereEqualTo("spot_name", sch)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            gp = (GeoPoint)document.get("map");
-
-                                            LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
-                                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
-                                            mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
-                                            markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review")));
-                                            mMap.addMarker(markerOptions);
-                                        }
-                                    } else {
-                                        startToast("다른 단어로 검색해주세요.");
-                                    }
-                                }
-                            });
-                }else startToast("검색할 위치를 입력해주세요.");
-            }
-        });
-
-        btn_review.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent_rv = new Intent(MainActivity.this, ReviewActivity.class);
-                intent_rv.putExtra("latitude", get_latitude);
-                intent_rv.putExtra("longitude", get_longitude);
-                startActivity(intent_rv);
-            }
-        });
-
-        imgbtn_logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                startLoginActivity();
-            }
-        });
-
-        button3.setOnClickListener(new Button.OnClickListener() { //약국 지도 버튼 클릭
-            public void onClick(View v) {
-                startMapsActivity();
-            }
-        });
-
-        button4.setOnClickListener(new View.OnClickListener() { //날씨 버튼 클릭
-            public void onClick(View v) {
-                startWeatherActivity();
-            }
-        });
-
     }//onCreate()
+
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.btn_sch:
+                    if(sch == true){
+                        schReview();
+                    }else {
+                        schSpot();
+                    }
+                    break;
+                case R.id.btn_review:
+                    Intent intent_rv = new Intent(MainActivity.this, ReviewActivity.class);
+                    intent_rv.putExtra("latitude", get_latitude);
+                    intent_rv.putExtra("longitude", get_longitude);
+                    startActivity(intent_rv);
+                    break;
+                case R.id.imgbtn_logout:
+                    FirebaseAuth.getInstance().signOut();
+                    startLoginActivity();
+                    break;
+                case R.id.button3:
+                    startMapsActivity();
+                    break;
+                case R.id.button4:
+                    startWeatherActivity();
+                    break;
+            }
+        }
+    };
+
+    private void CheckState(){
+        edt_sch = (TextView) findViewById(R.id.edt_sch);
+        if(switch_sch.isChecked()) {
+            edt_sch.setHint("내용으로 검색하세요");
+            sch = true;
+        }
+        else{
+            edt_sch.setHint("장소명을 검색하세요");
+            sch = false;
+        }
+
+    }
+
+    //장소명으로 검색
+    private void schSpot(){
+        mMap.clear();
+        final String sch = edt_sch.getText().toString();
+        if(sch.length() >0 ){
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            db.collection("review")
+                    .whereEqualTo("spot_name", sch)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    gp = (GeoPoint)document.get("map");
+
+                                    LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
+                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
+                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review")));
+                                    mMap.addMarker(markerOptions);
+                                }
+                            } else {
+                                startToast("다른 단어로 검색해주세요.");
+                            }
+                        }
+                    });
+        }else startToast("검색할 위치를 입력해주세요.");
+    }
+
+    //후기내용으로 검색
+    private void schReview(){
+        mMap.clear();
+        final String sch = edt_sch.getText().toString();
+        if(sch.length() >0 ){
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            db.collection("review")
+                    .whereEqualTo("review", sch)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    gp = (GeoPoint)document.get("map");
+
+                                    LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
+                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
+                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review")));
+                                    mMap.addMarker(markerOptions);
+                                }
+                            } else {
+                                startToast("다른 단어로 검색해주세요.");
+                            }
+                        }
+                    });
+        }else startToast("검색할 위치를 입력해주세요.");
+    }
 
     public void startMapsActivity() { //약국지도화면으로 이동
         Intent intent = new Intent(this, MapsActivity.class);

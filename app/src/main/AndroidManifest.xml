@@ -15,11 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
         <activity android:name=".ReviewActivity"></activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI" /> <!-- //구글 지도 API 키 -->
+
         <activity android:name=".MainActivity" />
         <activity android:name=".JoinActivity" /> <!-- <activity> ~ </activity> 사이에 <intent-filter>가 있는 activity가 실행시 가장 먼저 화면이 뜸 -->
         <!-- 방금전 styles.xml에서 설정한 SplashTheme적용 -->

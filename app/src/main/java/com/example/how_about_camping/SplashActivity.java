@@ -57,8 +57,8 @@ public class SplashActivity extends Activity {
         }
 
         // 이 액티비티 다음에 실행시킬 액티비티는 로그인액티비티
-        startActivity(new Intent(this,LoginActivity.class));
-        finish();
+        //startActivity(new Intent(this,LoginActivity.class));
+        //finish();
 
         // 스플래시로 띄울 이미지는 drawable - splash.png
         // 이미지 맵핑을 위해 value - styles.xml로 가서 작성!
