@@ -24,6 +24,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,8 +42,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.errorprone.annotations.Var;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -52,6 +55,7 @@ import androidx.core.content.ContextCompat;
 
 import android.location.Address;
 import android.location.Geocoder;
+import android.widget.ViewFlipper;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -70,10 +74,16 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringReader;
+import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import noman.googleplaces.NRPlaces;
 import noman.googleplaces.Place;
@@ -82,10 +92,11 @@ import noman.googleplaces.PlacesException;
 import noman.googleplaces.PlacesListener;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback, Serializable {
+        ActivityCompat.OnRequestPermissionsResultCallback, Serializable{
 
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
+    private FirebaseFirestore db; //파이어베이스 인스턴스
 
     Switch switch_sch;
     boolean sch = false;
@@ -96,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Marker currentMarker = null;
 
     List<Marker> previous_marker = null;
+    //테스트중==============================================================================================
+    List<String> items = new ArrayList<>();
+    SearchView search_view;
+    TextView text_search;
 
     private static final String TAG = "drugstoremap";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -127,11 +142,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GeoPoint gp;
     private MarkerOptions markerOptions;
-    private FirebaseFirestore db; //파이어베이스 인스턴스
     private double get_latitude, get_longitude;
     SupportMapFragment mapFragment;
 
     Button button3, button4;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,18 +157,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.imgbtn_logout).setOnClickListener(onClickListener);
         findViewById(R.id.button3).setOnClickListener(onClickListener);; // 약국 지도 버튼
         findViewById(R.id.button4).setOnClickListener(onClickListener);; // 날씨 버튼
+
         switch_sch = (Switch)findViewById(R.id.switch_sch);
-        CheckState();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         //파이어베이스 파이어스토어
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -170,6 +185,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         previous_marker = new ArrayList<Marker>();
         mLayout = findViewById(R.id.layout_maps);
 
+        
+        /*//=======================테스트중
+        SearchView search_view = (SearchView)findViewById(R.id.search_view);
+        final TextView text_search = (TextView)findViewById(R.id.text_search);
+        text_search.setText(getResult());
+
+        search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //검색(돋보기 버튼을 눌렀을때)
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //검색창에 글자를 칠때마다 뜨게할때
+                text_search.setText(search(newText));
+                return true;
+            }
+        });
+        //=======================테스트중 */
+
+        CheckState();
+        showData();//후기등록한거 제목 전체 띄우기
+
         switch_sch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -182,6 +222,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
     }//onCreate()
+
+    //입력받은 문자를 필터링해주는 기능
+    private String search(String query){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <items.size(); i++){
+            String item = items.get(i);
+            sb.append(item);
+            if(i != items.size() -1){
+                sb.append("\n");
+            }
+        }
+        return  sb.toString();
+    }
+
+    //결과물 출력 메서드
+    private String getResult(){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <items.size(); i++){
+            //items에서 하나씩 꺼네서 sb에 하나씩 넣어준다.
+            String item = items.get(i);
+            sb.append(item);
+            if(i != items.size()-1){
+                sb.append("\n");
+            }
+        }
+        return  sb.toString();
+    }
+
+    private void showData(){
+        db.collection("review")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String a = document.getString("spot_name");
+                                items.add(a);
+                            }
+                        } else {
+                            //실패했을경우
+                        }
+                    }
+                });
+    }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -233,8 +318,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final String sch = edt_sch.getText().toString();
         if(sch.length() >0 ){
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+            //Toast.makeText(MainActivity.this,String.valueOf(db.collection("review")),Toast.LENGTH_SHORT).show();
             db.collection("review")
                     .whereEqualTo("spot_name", sch)
                     .get()
@@ -244,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     gp = (GeoPoint)document.get("map");
-
+                                    Log.d(TAG, String.valueOf(document.get("spot_name")));
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
                                     mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
@@ -265,8 +349,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final String sch = edt_sch.getText().toString();
         if(sch.length() >0 ){
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
             db.collection("review")
                     .whereEqualTo("review", sch)
                     .get()
@@ -320,56 +402,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.getUiSettings().setZoomControlsEnabled(true);//UI에서 Zoom 컨트롤하겠다.
 
         setDefaultLocation();
-
-
-        /*View toolbar = ((View) mapFragment.getView().findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("4"));
-
-        // and next place it, for example, on bottom right (as Google Maps app)
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) toolbar.getLayoutParams();
-        // position on right bottom
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 30);
-
-
-        View locationButton = ((View) mapFragment.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-// position on right bottom
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        rlp.setMargins(0, 180, 180, 0);*/
-
-        /*try {
-            final ViewGroup parent = (ViewGroup) mapFragment.getView().findViewWithTag("GoogleMapMyLocationButton").getParent();
-            parent.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Resources r = getResources();
-                        //convert our dp margin into pixels
-                        int marginPixels = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, r.getDisplayMetrics());
-                        // Get the map compass view
-                        View mapCompass = parent.getChildAt(4);
-
-                        // create layoutParams, giving it our wanted width and height(important, by default the width is "match parent")
-                        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(mapCompass.getHeight(),mapCompass.getHeight());
-                        // position on top right
-                        //rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,100);
-                        rlp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,100);
-                        //rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                        //give compass margin
-                        rlp.setMargins(marginPixels, marginPixels, marginPixels, marginPixels);
-                        mapCompass.setLayoutParams(rlp);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
-
 
         // 권한 처리
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,

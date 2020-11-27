@@ -74,6 +74,19 @@
 
             </LinearLayout>
 
+<!--            <SearchView
+                android:id="@+id/search_view"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/linear"
+                android:background="#FFFFFF"/>
+            <TextView
+                android:id="@+id/text_search"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/search_view"
+                android:background="#FFFFFF"
+                tools:text="수원역\n수원\n수원핫플"/>-->
 
             <ImageButton
                 android:id="@+id/imgbtn_logout"

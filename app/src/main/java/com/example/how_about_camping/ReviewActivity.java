@@ -66,7 +66,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
         btn_upload = (Button)findViewById(R.id.btn_upload);
 
         textView2 = (TextView)findViewById(R.id.textView2);
-
+        textView3 = (TextView)findViewById(R.id.textView3);
         //textView3.setText(Double.toString(latitude_intent));
         //textView4.setText(Double.toString(longitude_intent));
 
@@ -103,11 +103,15 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
 
     @SuppressLint("MissingPermission")
     private void getLocation() {
+        //Toast.makeText(ReviewActivity.this, "1단계성공", Toast.LENGTH_SHORT).show();
         try{
-            pd.setTitle("현재위치 주소 확인중...");
-            pd.show();
+            //Toast.makeText(ReviewActivity.this, "2단계성공", Toast.LENGTH_SHORT).show();
+            //pd.setTitle("현재위치 주소 확인중...");
+            //pd.show();
             locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,5, (android.location.LocationListener) ReviewActivity.this);
+
+            //pd.dismiss();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -122,7 +126,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             String address = addresses.get(0).getAddressLine(0);
 
-            pd.dismiss();
+            //pd.dismiss();
             textView3.setText(address);
         }catch (Exception e){
             e.printStackTrace();
@@ -180,6 +184,9 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
                         //검색에 성공하였을 경우 실행
                         pd.dismiss();
                         Toast.makeText(ReviewActivity.this, "등록되었습니다!",Toast.LENGTH_SHORT).show();
+                        intent = new Intent(ReviewActivity.this,MainActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
