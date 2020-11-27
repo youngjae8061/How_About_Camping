@@ -65,7 +65,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
         edt_review = (EditText)findViewById(R.id.edt_review);
         btn_upload = (Button)findViewById(R.id.btn_upload);
 
-        textView3 = (TextView)findViewById(R.id.textView3);
+        textView2 = (TextView)findViewById(R.id.textView2);
 
         //textView3.setText(Double.toString(latitude_intent));
         //textView4.setText(Double.toString(longitude_intent));
