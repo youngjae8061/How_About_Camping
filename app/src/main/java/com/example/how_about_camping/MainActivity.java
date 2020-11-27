@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -332,8 +334,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
                                     mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
-                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review")));
+                                    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                    Bitmap b = bitmapdraw.getBitmap();
+                                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
+                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review"))).icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                                     mMap.addMarker(markerOptions);
+
+                                    /*MarkerOptions makerOptions = new MarkerOptions();
+                                    BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                    Bitmap b=bitmapdraw.getBitmap();
+                                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 200, 200, false);
+                                    makerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));*/
                                 }
                             } else {
                                 startToast("다른 단어로 검색해주세요.");
@@ -362,7 +373,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
                                     mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
-                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review")));
+                                    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                    Bitmap b = bitmapdraw.getBitmap();
+                                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
+                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review"))).icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                                     mMap.addMarker(markerOptions);
                                 }
                             } else {

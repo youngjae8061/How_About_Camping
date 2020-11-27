@@ -3,6 +3,8 @@ package com.example.how_about_camping;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -550,14 +552,15 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                             place.getLongitude());
 
                     String markerSnippet = getCurrentAddress(latLng);
-
+                    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.shop);
+                    Bitmap b = bitmapdraw.getBitmap();
+                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
                     markerOptions.title(place.getName());
-                    markerOptions.snippet(markerSnippet);
+                    markerOptions.snippet(markerSnippet).icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                     Marker item = mMap.addMarker(markerOptions);
                     previous_marker.add(item);
-
                 }
 
                 //중복 마커 제거
@@ -580,7 +583,7 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                 .listener(MapsActivity.this)
                 .key("AIzaSyBOCI7VOW4uISKkrUjcV5oRsZU658xFOHI")
                 .latlng(location.latitude, location.longitude)//현재 위치
-                .radius(500) //500M 내에서 검색
+                .radius(5000) //500M 내에서 검색
                 .type(PlaceType.PHARMACY) //PHARMACY 약국. AVD TEST 진행해야함
                 .build()
                 .execute();
