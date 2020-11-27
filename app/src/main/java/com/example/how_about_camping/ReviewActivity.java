@@ -91,12 +91,12 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
                 String spot_name = edt_spot_name.getText().toString().trim();
                 String review = edt_review.getText().toString().trim();
                 GeoPoint gp = new GeoPoint(latitude_intent, longitude_intent);
-
+                String id = UUID.randomUUID().toString();
 
                 //Toast.makeText(ReviewActivity.this, spot_name, Toast.LENGTH_SHORT).show();
                 //Toast.makeText(ReviewActivity.this, review, Toast.LENGTH_SHORT).show();
                 //Toast.makeText(ReviewActivity.this, "1단계성공", Toast.LENGTH_SHORT).show();
-                uploadData(spot_name, review, gp);
+                uploadData(spot_name, review, gp, id);
             }
         });
     }
@@ -149,14 +149,13 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
     }
 
     //파이어스토어에 후기를 올려주는 메소드
-    private void uploadData(String sp_n, String rv, GeoPoint geoPoint) {
+    private void uploadData(String sp_n, String rv, GeoPoint geoPoint, String id) {
 
         //set title of progress bar
         //pd.setTitle("후기 등록중...");
         //show progress bar when user clike save button
         //pd.show();
 
-        String id = UUID.randomUUID().toString();
 
         //빈칸 여부 체크
         if (sp_n.equals("")) {
@@ -175,7 +174,9 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
         infoMap.put("spot_name", sp_n);
         infoMap.put("review", rv);
         infoMap.put("map", geoPoint);
+        infoMap.put("id", id);
 
+        //파이어스토어에 등록
         fStore.collection("review").document(id)
                 .set(infoMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
