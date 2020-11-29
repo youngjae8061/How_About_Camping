@@ -10,9 +10,9 @@
 
 
     <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
 
     </RelativeLayout>
@@ -44,6 +44,13 @@
                 android:text="  장소명 / 후기 검색 스위치"
                 android:background="@drawable/style_button"/>
 
+            <ImageView
+                android:id="@+id/img_test"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                app:srcCompat="@drawable/campingpic2" />
+
             <LinearLayout
                 android:id="@+id/linear"
                 android:layout_width="wrap_content"
@@ -74,19 +81,19 @@
 
             </LinearLayout>
 
-<!--            <SearchView
-                android:id="@+id/search_view"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/linear"
-                android:background="#FFFFFF"/>
-            <TextView
-                android:id="@+id/text_search"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/search_view"
-                android:background="#FFFFFF"
-                tools:text="수원역\n수원\n수원핫플"/>-->
+            <!--            <SearchView
+                            android:id="@+id/search_view"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/linear"
+                            android:background="#FFFFFF"/>
+                        <TextView
+                            android:id="@+id/text_search"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/search_view"
+                            android:background="#FFFFFF"
+                            tools:text="수원역\n수원\n수원핫플"/>-->
 
             <ImageButton
                 android:id="@+id/imgbtn_logout"
@@ -104,7 +111,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="20dp"
                 android:layout_marginRight="20dp"
-                android:background="@android:color/holo_red_dark"
+                android:background="@drawable/style_review_add"
                 android:text="+"
                 android:textColor="@color/common_google_signin_btn_text_dark_default"
                 android:textSize="36sp" />

@@ -7,14 +7,17 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -25,12 +28,18 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Registry;
+import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.module.AppGlideModule;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
@@ -71,12 +80,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,8 +109,8 @@ import noman.googleplaces.PlaceType;
 import noman.googleplaces.PlacesException;
 import noman.googleplaces.PlacesListener;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback, Serializable{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+        ActivityCompat.OnRequestPermissionsResultCallback, Serializable {
 
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
@@ -123,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
 
-    String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};  // 외부 저장소
+    String[] REQUIRED_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};  // 외부 저장소
 
     LatLng currentPosition;
 
@@ -133,9 +149,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private View mLayout;
 
+    ImageView img_test;
     ImageButton imgbtn_logout;
     private Geocoder geocoder;
-    private Button btn_review,btn_sch;
+    private Button btn_review, btn_sch;
     private TextView edt_sch;
     // 마지막으로 뒤로가기 버튼을 눌렀던 시간 저장
     private long backKeyPressedTime = 0;
@@ -147,7 +164,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double get_latitude, get_longitude;
     SupportMapFragment mapFragment;
 
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
     Button button3, button4;
+    View dialogView;
+    ImageView imgReview;
+    TextView txtSpotName, txtReview;
+
+    String title, snippet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,10 +181,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.btn_sch).setOnClickListener(onClickListener);
         findViewById(R.id.btn_review).setOnClickListener(onClickListener);//리뷰버튼
         findViewById(R.id.imgbtn_logout).setOnClickListener(onClickListener);
-        findViewById(R.id.button3).setOnClickListener(onClickListener);; // 약국 지도 버튼
-        findViewById(R.id.button4).setOnClickListener(onClickListener);; // 날씨 버튼
+        findViewById(R.id.button3).setOnClickListener(onClickListener);
+        ; // 약국 지도 버튼
+        findViewById(R.id.button4).setOnClickListener(onClickListener);
+        ; // 날씨 버튼
+        // 다이얼로그 버튼들
 
-        switch_sch = (Switch)findViewById(R.id.switch_sch);
+        img_test = (ImageView) findViewById(R.id.img_test);
+
+        switch_sch = (Switch) findViewById(R.id.switch_sch);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -187,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         previous_marker = new ArrayList<Marker>();
         mLayout = findViewById(R.id.layout_maps);
 
-        
+
         /*//=======================테스트중
         SearchView search_view = (SearchView)findViewById(R.id.search_view);
         final TextView text_search = (TextView)findViewById(R.id.text_search);
@@ -226,33 +255,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//onCreate()
 
     //입력받은 문자를 필터링해주는 기능
-    private String search(String query){
+    private String search(String query) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i <items.size(); i++){
+        for (int i = 0; i < items.size(); i++) {
             String item = items.get(i);
             sb.append(item);
-            if(i != items.size() -1){
+            if (i != items.size() - 1) {
                 sb.append("\n");
             }
         }
-        return  sb.toString();
+        return sb.toString();
     }
 
     //결과물 출력 메서드
-    private String getResult(){
+    private String getResult() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i <items.size(); i++){
+        for (int i = 0; i < items.size(); i++) {
             //items에서 하나씩 꺼네서 sb에 하나씩 넣어준다.
             String item = items.get(i);
             sb.append(item);
-            if(i != items.size()-1){
+            if (i != items.size() - 1) {
                 sb.append("\n");
             }
         }
-        return  sb.toString();
+        return sb.toString();
     }
 
-    private void showData(){
+    private void showData() {
         db.collection("review")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -273,11 +302,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            switch (view.getId()){
+            switch (view.getId()) {
                 case R.id.btn_sch:
-                    if(sch == true){
+                    if (sch == true) {
                         schReview();
-                    }else {
+                    } else {
                         schSpot();
                     }
                     break;
@@ -301,13 +330,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     };
 
-    private void CheckState(){
+    private void CheckState() {
         edt_sch = (TextView) findViewById(R.id.edt_sch);
-        if(switch_sch.isChecked()) {
+        if (switch_sch.isChecked()) {
             edt_sch.setHint("내용으로 검색하세요");
             sch = true;
-        }
-        else{
+        } else {
             edt_sch.setHint("장소명을 검색하세요");
             sch = false;
         }
@@ -315,10 +343,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //장소명으로 검색
-    private void schSpot(){
+    private void schSpot() {
         mMap.clear();
         final String sch = edt_sch.getText().toString();
-        if(sch.length() >0 ){
+        if (sch.length() > 0) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             //Toast.makeText(MainActivity.this,String.valueOf(db.collection("review")),Toast.LENGTH_SHORT).show();
             db.collection("review")
@@ -329,36 +357,56 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    gp = (GeoPoint)document.get("map");
-                                    Log.d(TAG, String.valueOf(document.get("spot_name")));
+                                    gp = (GeoPoint) document.get("map");
+                                    mMap.setOnMarkerClickListener(MainActivity.this);
+                                    Log.d(TAG, String.valueOf(document.get("spot_name"))); //!!!!!!!!!!!!!!!!!!
+
+                                    String filename = String.valueOf(document.get("id")) + ".png";
+                                    final StorageReference storageRef = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+
+                                    storageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Uri> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(MainActivity.this, task.getResult().getLastPathSegment(), Toast.LENGTH_SHORT); //안뜸
+                                                // Glide 이용하여 이미지뷰에 로딩
+                                                /*Glide.with(MainActivity.this)
+                                                        .load(task.getResult())
+                                                        .override(1024, 980)
+                                                        .into(img_test);*/
+                                            } else {
+                                                // URL을 가져오지 못하면 토스트 메세지
+                                                Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
                                     mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
                                     BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
                                     Bitmap b = bitmapdraw.getBitmap();
                                     Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
-                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review"))).icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
-                                    mMap.addMarker(markerOptions);
 
-                                    /*MarkerOptions makerOptions = new MarkerOptions();
-                                    BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.tent);
-                                    Bitmap b=bitmapdraw.getBitmap();
-                                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 200, 200, false);
-                                    makerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));*/
+                                    markerOptions = new MarkerOptions()
+                                            .position(latLng)
+                                            .title(String.valueOf(document.get("review")))
+                                            .snippet(String.valueOf(document.get("spot_name")))
+                                            .icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                                    mMap.addMarker(markerOptions);
                                 }
                             } else {
                                 startToast("다른 단어로 검색해주세요.");
                             }
                         }
                     });
-        }else startToast("검색할 장소를 입력해주세요.");
+        } else startToast("검색할 장소를 입력해주세요.");
     }
 
     //후기내용으로 검색
-    private void schReview(){
+    private void schReview() {
         mMap.clear();
         final String sch = edt_sch.getText().toString();
-        if(sch.length() >0 ){
+        if (sch.length() > 0) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             db.collection("review")
                     .whereEqualTo("review", sch)
@@ -368,7 +416,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    gp = (GeoPoint)document.get("map");
+                                    gp = (GeoPoint) document.get("map");
+
+                                    Log.d(TAG, String.valueOf(document.get("review"))); //!!!!!!!!!!!!!!!!!!
+
+                                    String filename = String.valueOf(document.get("id")) + ".png";
+                                    final StorageReference storageRef = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+
+                                    storageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Uri> task) {
+                                            if (task.isSuccessful()) {
+                                                // Glide 이용하여 이미지뷰에 로딩
+                                                Glide.with(MainActivity.this)
+                                                        .load(task.getResult())
+                                                        .override(1024, 980)
+                                                        .into(img_test);
+                                            } else {
+                                                // URL을 가져오지 못하면 토스트 메세지
+                                                Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
 
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
@@ -376,7 +445,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
                                     Bitmap b = bitmapdraw.getBitmap();
                                     Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
-                                    markerOptions = new MarkerOptions().position(latLng).title(String.valueOf(document.get("spot_name"))).snippet(String.valueOf(document.get("review"))).icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                                    markerOptions = new MarkerOptions()
+                                            .position(latLng)
+                                            .title(String.valueOf(document.get("spot_name")))
+                                            .snippet(String.valueOf(document.get("review")))
+                                            .icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                                     mMap.addMarker(markerOptions);
                                 }
                             } else {
@@ -384,25 +457,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         }
                     });
-        }else startToast("검색할 내용을 입력해주세요.");
-    }
-
-    public void startMapsActivity() { //약국지도화면으로 이동
-        Intent intent = new Intent(this, MapsActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
-    public void startWeatherActivity() { //날씨화면으로 이동
-        Intent intent = new Intent(this, WeatherActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
-    private void startLoginActivity() {
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        } else startToast("검색할 내용을 입력해주세요.");
     }
 
     @Override
@@ -410,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "onMapReady :");
 
         mMap = googleMap;
+        mMap.setOnMarkerClickListener(MainActivity.this);
 
         googleMap.setIndoorEnabled(true);   //실내에서작동
         googleMap.setBuildingsEnabled(true);//건물표시
@@ -426,10 +482,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 권한있음
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
+                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
 
             startLocationUpdates();
-        }else {
+        } else {
             // 권한없음
             // 권한 거부 시
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
@@ -439,13 +495,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onClick(View view) {
 
-                        ActivityCompat.requestPermissions( MainActivity.this, REQUIRED_PERMISSIONS,
+                        ActivityCompat.requestPermissions(MainActivity.this, REQUIRED_PERMISSIONS,
                                 PERMISSIONS_REQUEST_CODE);
                     }
                 }).show();
             } else {
                 // 권한 요청
-                ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS,
+                ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
                         PERMISSIONS_REQUEST_CODE);
             }
         }
@@ -453,13 +509,91 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
             @Override
             public void onMapClick(LatLng latLng) {
 
-                Log.d( TAG, "onMapClick :");
+                Log.d(TAG, "onMapClick :");
             }
         });
+    }
+    @GlideModule
+    public class MyAppGlideModule extends AppGlideModule {
+
+        @Override
+        public void registerComponents(@NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
+            registry.append(StorageReference.class, InputStream.class, new FirebaseImageLoader.Factory());
+        }
+    }
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        dialogView = (View) View.inflate(MainActivity.this, R.layout.dialog, null);
+        AlertDialog.Builder dlg = new AlertDialog.Builder(MainActivity.this);
+       // startToast("들어가긴하는거냐../?");
+        //startToast(marker.getTitle());
+        //startToast(marker.getSnippet());
+
+        imgReview = (ImageView) dialogView.findViewById(R.id.imgReview);
+        txtSpotName = (TextView) dialogView.findViewById(R.id.txtSpotName);
+        txtReview = (TextView) dialogView.findViewById(R.id.txtReview);
+
+        title = marker.getTitle();
+        snippet = marker.getSnippet();
+
+        db.collection("review")
+                .whereEqualTo("spot_name", title)
+                .whereEqualTo("review", snippet)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                startToast(String.valueOf(document.get("spot_name")));
+
+                                String filename = String.valueOf(document.get("id")) + ".png";
+                                final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+                                //StorageReference pathReference = storageR.child("images/"+filename);
+                                String imageUrl = String.valueOf(storageR);
+
+                                Glide.with(imgReview.getContext())
+                                        .using(new FirebaseImageLoader())
+                                        .load(imageUrl)
+                                        .into(imgReview);
+
+                                storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Uri> task) {
+                                        if (task.isSuccessful()) {
+                                            // Glide 이용하여 이미지뷰에 로딩
+                                        } else {
+                                            // URL을 가져오지 못하면 토스트 메세지
+                                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
+                                startToast("이건"+String.valueOf(task.getResult()));
+                                startToast(String.valueOf(storageR));
+
+                                BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                Bitmap b = bitmapdraw.getBitmap();
+                                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
+
+                            }
+                        } else {
+                            startToast("사진을 못가져왔어요 ㅠ");
+                        }
+                    }
+                });
+
+
+        txtSpotName.setText(title);
+        txtReview.setText(snippet);
+        //imgReview.setImageResource();
+        dlg.setView(dialogView);
+        dlg.setPositiveButton("확인", null);
+        dlg.show();
+        return true;
     }
 
     //위치 갱신
@@ -488,7 +622,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");
             showDialogForLocationServiceSetting();
-        }else {
+        } else {
 
             int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION);
@@ -496,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Manifest.permission.ACCESS_COARSE_LOCATION);
 
             if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED ||
-                    hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED   ) {
+                    hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
 
                 Log.d(TAG, "startLocationUpdates : 권한 없음");
                 return;
@@ -521,7 +655,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.d(TAG, "onStart : call mFusedLocationClient.requestLocationUpdates");
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
 
-            if (mMap!=null)
+            if (mMap != null)
                 mMap.setMyLocationEnabled(true);
         }
     }
@@ -541,7 +675,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         List<Address> addresses;
-        
+
         try {
             addresses = geocoder.getFromLocation(
                     latlng.latitude,
@@ -604,9 +738,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Manifest.permission.ACCESS_COARSE_LOCATION);
 
 
-
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
+                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
 
@@ -620,7 +753,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                            @NonNull String[] permissions,
                                            @NonNull int[] grandResults) {
 
-        if ( permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
+        if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
             boolean check_result = true;
 
 
@@ -633,12 +766,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
-            if ( check_result ) {
+            if (check_result) {
 
                 // 권한 허용
                 startLocationUpdates();
-            }
-            else {
+            } else {
                 // 권한 거부
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
                         || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
@@ -653,7 +785,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }).show();
 
-                }else {
+                } else {
                     // "다시 묻지 않음"을 사용자가 체크하고 거부한 경우
                     Snackbar.make(mLayout, "권한이 거부되었습니다. 설정에서 권한을 허용해야 합니다. ",
                             Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
@@ -743,7 +875,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }//onBackPressed()
 
-    private void startToast(String msg){
-        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+    public void startMapsActivity() { //약국지도화면으로 이동
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    public void startWeatherActivity() { //날씨화면으로 이동
+        Intent intent = new Intent(this, WeatherActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    private void startLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    private void startToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }

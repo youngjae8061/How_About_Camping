@@ -64,12 +64,25 @@
                 android:hint="후기"
                 android:textColorHint="#333333"/>
         </LinearLayout>
+
         <Button
             android:id="@+id/btn_upload"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center|top"
             android:background="@drawable/style_button"
-            android:text="등록"/>
+            android:text="등록" />
+
+        <Button
+            android:id="@+id/btChoose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="선택" />
+
+        <ImageView
+            android:id="@+id/iv_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
+
 </LinearLayout>
