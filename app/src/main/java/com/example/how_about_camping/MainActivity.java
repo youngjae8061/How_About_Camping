@@ -574,8 +574,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     }
                                 });
 
-                                startToast("이건"+String.valueOf(task.getResult()));
-                                startToast(String.valueOf(storageR));
+                              //  startToast("이건"+String.valueOf(task.getResult()));
+                              //  startToast(String.valueOf(storageR));
 
                                 BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
                                 Bitmap b = bitmapdraw.getBitmap();

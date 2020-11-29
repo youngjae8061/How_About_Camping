@@ -477,7 +477,7 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e(TAG, "Something went wrong: " + error);
-                        Toast.makeText(getApplicationContext(), "check your internet connection", Toast.LENGTH_LONG).show();
+                     //   Toast.makeText(getApplicationContext(), "check your internet connection", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -613,7 +613,7 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Something went wrong: " + error);
-                Toast.makeText(getApplicationContext(), "check your internet connection", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "check your internet connection", Toast.LENGTH_LONG).show();
             }
         }
         );
