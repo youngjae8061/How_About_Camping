@@ -369,11 +369,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         public void onComplete(@NonNull Task<Uri> task) {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(MainActivity.this, task.getResult().getLastPathSegment(), Toast.LENGTH_SHORT); //안뜸
-                                                // Glide 이용하여 이미지뷰에 로딩
-                                                /*Glide.with(MainActivity.this)
-                                                        .load(task.getResult())
-                                                        .override(1024, 980)
-                                                        .into(img_test);*/
+
                                             } else {
                                                 // URL을 가져오지 못하면 토스트 메세지
                                                 Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -389,8 +385,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     markerOptions = new MarkerOptions()
                                             .position(latLng)
-                                            .title(String.valueOf(document.get("review")))
-                                            .snippet(String.valueOf(document.get("spot_name")))
+                                            .title(String.valueOf(document.get("spot_name")))
+                                            .snippet(String.valueOf(document.get("review")))
                                             .icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                                     mMap.addMarker(markerOptions);
                                 }
@@ -427,11 +423,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         @Override
                                         public void onComplete(@NonNull Task<Uri> task) {
                                             if (task.isSuccessful()) {
-                                                // Glide 이용하여 이미지뷰에 로딩
-                                             //   Glide.with(MainActivity.this)
-                                              //          .load(task.getResult())
-                                              //          .override(1024, 980)
-                                                //        .into(img_test);
+
                                             } else {
                                                 // URL을 가져오지 못하면 토스트 메세지
                                                 Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -491,7 +483,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
                 Snackbar.make(mLayout, "이 앱을 실행하려면 위치 접근 권한이 필요합니다.",
                         Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
-
                     @Override
                     public void onClick(View view) {
 
@@ -516,21 +507,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-    @GlideModule
-    public class MyAppGlideModule extends AppGlideModule {
 
-        @Override
-        public void registerComponents(@NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
-            registry.append(StorageReference.class, InputStream.class, new FirebaseImageLoader.Factory());
-        }
-    }
     @Override
     public boolean onMarkerClick(Marker marker) {
         dialogView = (View) View.inflate(MainActivity.this, R.layout.dialog, null);
         AlertDialog.Builder dlg = new AlertDialog.Builder(MainActivity.this);
-       // startToast("들어가긴하는거냐../?");
-        //startToast(marker.getTitle());
-        //startToast(marker.getSnippet());
 
         imgReview = (ImageView) dialogView.findViewById(R.id.imgReview);
         txtSpotName = (TextView) dialogView.findViewById(R.id.txtSpotName);
@@ -539,55 +520,99 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         title = marker.getTitle();
         snippet = marker.getSnippet();
 
-        db.collection("review")
-                .whereEqualTo("spot_name", title)
-                .whereEqualTo("review", snippet)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                startToast(String.valueOf(document.get("spot_name")));
+        if(sch == true){
+            // 리뷰 검색한 마커 정보 가져오기
+            db.collection("review")
+                    .whereEqualTo("review", snippet)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    startToast(String.valueOf(document.get("spot_name")));
 
-                                String filename = String.valueOf(document.get("id")) + ".png";
-                                final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
-                                //StorageReference pathReference = storageR.child("images/"+filename);
-                                final String imageUrl = String.valueOf(storageR);
+                                    String filename = String.valueOf(document.get("id")) + ".png";
+                                    final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+                                    //StorageReference pathReference = storageR.child("images/"+filename);
+                                    final String imageUrl = String.valueOf(storageR);
 
 
-                                storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Uri> task) {
-                                        if (task.isSuccessful()) {
-                                            // Glide 이용하여 이미지뷰에 로딩
-                                            Glide.with(MainActivity.this)
-                                                    .load(task.getResult())
-                                                    .override(1024, 980)
-                                                    .into(imgReview);
-                                            Log.d("url", imageUrl);
+                                    storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Uri> task) {
+                                            if (task.isSuccessful()) {
+                                                // Glide 이용하여 이미지뷰에 로딩
+                                                Glide.with(MainActivity.this)
+                                                        .load(task.getResult())
+                                                        .override(1024, 980)
+                                                        .into(imgReview);
+                                                Log.d("url", imageUrl);
 
-                                        } else {
-                                            // URL을 가져오지 못하면 토스트 메세지
-                                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                // URL을 가져오지 못하면 토스트 메세지
+                                                Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
                                         }
-                                    }
-                                });
+                                    });
 
-                              //  startToast("이건"+String.valueOf(task.getResult()));
-                              //  startToast(String.valueOf(storageR));
+                                    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                    Bitmap b = bitmapdraw.getBitmap();
+                                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
 
-                                BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
-                                Bitmap b = bitmapdraw.getBitmap();
-                                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
-
+                                }
+                            } else {
+                                startToast("사진을 못가져왔어요 ㅠ");
                             }
-                        } else {
-                            startToast("사진을 못가져왔어요 ㅠ");
                         }
-                    }
-                });
+                    });
+        }else{
+            // 장소명으로 검색한 마커 정보 가져오기
+            db.collection("review")
+                    .whereEqualTo("spot_name", title)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    startToast(String.valueOf(document.get("spot_name")));
 
+                                    String filename = String.valueOf(document.get("id")) + ".png";
+                                    final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+                                    //StorageReference pathReference = storageR.child("images/"+filename);
+                                    final String imageUrl = String.valueOf(storageR);
+
+
+                                    storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Uri> task) {
+                                            if (task.isSuccessful()) {
+                                                // Glide 이용하여 이미지뷰에 로딩
+                                                Glide.with(MainActivity.this)
+                                                        .load(task.getResult())
+                                                        .override(1024, 980)
+                                                        .into(imgReview);
+                                                Log.d("url", imageUrl);
+
+                                            } else {
+                                                // URL을 가져오지 못하면 토스트 메세지
+                                                Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                                    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                    Bitmap b = bitmapdraw.getBitmap();
+                                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
+
+                                }
+                            } else {
+                                startToast("사진을 못가져왔어요 ㅠ");
+                            }
+                        }
+                    });
+        }
 
         txtSpotName.setText(title);
         txtReview.setText(snippet);
