@@ -44,13 +44,6 @@
                 android:text="  장소명 / 후기 검색 스위치"
                 android:background="@drawable/style_button"/>
 
-            <ImageView
-                android:id="@+id/img_test"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerInParent="true"
-                app:srcCompat="@drawable/campingpic2" />
-
             <LinearLayout
                 android:id="@+id/linear"
                 android:layout_width="wrap_content"
@@ -118,8 +111,8 @@
 
             <LinearLayout
                 android:id="@+id/linear1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="327dp"
+                android:layout_height="81dp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:orientation="horizontal">

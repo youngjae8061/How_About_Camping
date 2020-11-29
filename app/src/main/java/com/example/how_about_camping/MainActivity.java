@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ; // 날씨 버튼
         // 다이얼로그 버튼들
 
-        img_test = (ImageView) findViewById(R.id.img_test);
+      //  img_test = (ImageView) findViewById(R.id.img_test);
 
         switch_sch = (Switch) findViewById(R.id.switch_sch);
 
@@ -428,10 +428,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         public void onComplete(@NonNull Task<Uri> task) {
                                             if (task.isSuccessful()) {
                                                 // Glide 이용하여 이미지뷰에 로딩
-                                                Glide.with(MainActivity.this)
-                                                        .load(task.getResult())
-                                                        .override(1024, 980)
-                                                        .into(img_test);
+                                             //   Glide.with(MainActivity.this)
+                                              //          .load(task.getResult())
+                                              //          .override(1024, 980)
+                                                //        .into(img_test);
                                             } else {
                                                 // URL을 가져오지 못하면 토스트 메세지
                                                 Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -553,18 +553,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 String filename = String.valueOf(document.get("id")) + ".png";
                                 final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
                                 //StorageReference pathReference = storageR.child("images/"+filename);
-                                String imageUrl = String.valueOf(storageR);
+                                final String imageUrl = String.valueOf(storageR);
 
-                                Glide.with(imgReview.getContext())
-                                        .using(new FirebaseImageLoader())
-                                        .load(imageUrl)
-                                        .into(imgReview);
 
                                 storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Uri> task) {
                                         if (task.isSuccessful()) {
                                             // Glide 이용하여 이미지뷰에 로딩
+                                            Glide.with(MainActivity.this)
+                                                    .load(task.getResult())
+                                                    .override(1024, 980)
+                                                    .into(imgReview);
+                                            Log.d("url", imageUrl);
+
                                         } else {
                                             // URL을 가져오지 못하면 토스트 메세지
                                             Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
