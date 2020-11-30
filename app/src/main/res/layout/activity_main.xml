@@ -124,14 +124,14 @@
                     android:layout_marginBottom="10dp">
 
                     <Button
-                        android:id="@+id/button3"
+                        android:id="@+id/btn_maps"
                         android:layout_width="142dp"
                         android:layout_height="wrap_content"
                         android:background="@drawable/style_button"
                         android:text="주변 약국 지도" />
 
                     <Button
-                        android:id="@+id/button4"
+                        android:id="@+id/btn_weather"
                         android:layout_width="142dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"

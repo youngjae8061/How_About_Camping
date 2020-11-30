@@ -1,7 +1,6 @@
 package com.example.how_about_camping;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -17,7 +16,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -210,13 +208,13 @@ public class WeatherActivity extends AppCompatActivity {
 
         int time = Integer.parseInt(hourText);
         if (time >= 0 && time < 6) {
-            background.setBackground(ContextCompat.getDrawable(this, R.drawable.sunny_night_background));
+            background.setBackground(ContextCompat.getDrawable(this, R.drawable.night_background));
         } else if (time >= 6 && time < 15) {
-            background.setBackground(ContextCompat.getDrawable(this, R.drawable.sunny_afternoon_background));
+            background.setBackground(ContextCompat.getDrawable(this, R.drawable.afternoon_background));
         } else if (time >= 15 && time < 20) {
-            background.setBackground(ContextCompat.getDrawable(this, R.drawable.sunny_sunset_background));
+            background.setBackground(ContextCompat.getDrawable(this, R.drawable.sunset_background));
         } else if (time >= 20 && time < 24) {
-            background.setBackground(ContextCompat.getDrawable(this, R.drawable.sunny_night_background));
+            background.setBackground(ContextCompat.getDrawable(this, R.drawable.night_background));
         }
     }
 
