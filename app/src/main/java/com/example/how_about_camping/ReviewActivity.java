@@ -57,6 +57,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
     //progress dialog
     ProgressDialog pd;
 
+    boolean check_file = false, check_date = false;
 
     EditText edt_spot_name, edt_review;
     Button btn_upload;
@@ -99,11 +100,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
         //progress dialog
         pd = new ProgressDialog(this);
 
-        /*if(ContextCompat.checkSelfPermission(ReviewActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(ReviewActivity.this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            }, 100);
-        }*/
+        ivPreview.setEnabled(false);
 
         getLocation();
 
@@ -149,6 +146,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
                 //Uri 파일을 Bitmap으로 만들어서 ImageView에 집어 넣는다.
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 ivPreview.setImageBitmap(bitmap);
+                check_file = true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -158,7 +156,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
     //upload the file    // 추가
     private void uploadFile(String id) {
         //업로드할 파일이 있으면 수행
-        if (filePath != null) {
+        if (check_date == true & check_file==true) {
             //업로드 진행 Dialog 보이기
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("업로드중...");
@@ -201,7 +199,8 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
                         }
                     });
         } else {
-            Toast.makeText(getApplicationContext(), "파일을 먼저 선택하세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "사진 업로드 해주세요!", Toast.LENGTH_SHORT).show();
+            textViewNULLCheck();
         }
     }
 
@@ -255,55 +254,55 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
     //파이어스토어에 후기를 올려주는 메소드
     private void uploadData(String sp_n, String rv, GeoPoint geoPoint, String id, String url) {
 
-        //set title of progress bar
-        //pd.setTitle("후기 등록중...");
-        //show progress bar when user clike save button
-        //pd.show();
-
-
         //빈칸 여부 체크
-        if (sp_n.equals("")) {
-            Toast.makeText(ReviewActivity.this, "지역명을..?", Toast.LENGTH_SHORT).show();
-            edt_spot_name.setError("지역명을 입력해주세요.");
+        textViewNULLCheck();
+
+        if(check_date == true & check_file==true) {
+            ivPreview.setEnabled(true);
+            //정보 해쉬맵
+            Map<String, Object> infoMap = new HashMap<>();
+            infoMap.put("spot_name", sp_n);
+            infoMap.put("review", rv);
+            infoMap.put("map", geoPoint);
+            infoMap.put("id", id);
+            infoMap.put("url", url);
+
+            //파이어스토어에 등록
+            fStore.collection("review").document(id)
+                    .set(infoMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //검색에 성공하였을 경우 실행
+                            pd.dismiss();
+                            Toast.makeText(ReviewActivity.this, "등록되었습니다!", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //검색에 실패하였을 경우 실행
+                            pd.dismiss();
+                            //오류메시지 get
+                            Log.d("error", e.getMessage());
+                            Toast.makeText(ReviewActivity.this, "오류가 발생했습니다!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }else{
+            Toast.makeText(ReviewActivity.this, "사진 업로드 해주세요!", Toast.LENGTH_SHORT).show();
+            textViewNULLCheck();
+        }
+    }
+
+    private void textViewNULLCheck(){
+        if (edt_spot_name.getText().toString().trim().equals("")) {
+            edt_spot_name.setError("장소명을 입력해주세요.");
             return;
         }
-
-        if (rv.equals("")) {
+        if (edt_review.getText().toString().trim().equals("")) {
             edt_review.setError("후기를 입력해주세요.");
             return;
         }
-
-        //강의정보 해쉬맵
-        Map<String, Object> infoMap = new HashMap<>();
-        infoMap.put("spot_name", sp_n);
-        infoMap.put("review", rv);
-        infoMap.put("map", geoPoint);
-        infoMap.put("id", id);
-        infoMap.put("url", url);
-
-        //파이어스토어에 등록
-        fStore.collection("review").document(id)
-                .set(infoMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        //검색에 성공하였을 경우 실행
-                        pd.dismiss();
-                        Toast.makeText(ReviewActivity.this, "등록되었습니다!", Toast.LENGTH_SHORT).show();
-                        //intent = new Intent(ReviewActivity.this,MainActivity.class);
-                        //startActivity(intent);
-                        //finish();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        //검색에 실패하였을 경우 실행
-                        pd.dismiss();
-                        //오류메시지 get
-                        Log.d("error", e.getMessage());
-                        Toast.makeText(ReviewActivity.this, "오류가 발생했습니다!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        check_date = true;
     }
 }

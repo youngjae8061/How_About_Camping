@@ -29,6 +29,7 @@ import com.example.how_about_camping.SearchActivity;
 import com.example.how_about_camping.AddressParsingUtil;
 import com.example.how_about_camping.GpsTracker;
 import com.example.how_about_camping.PreferenceManager;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class SplashActivity extends Activity {
     private GpsTracker gpsTracker;
@@ -150,10 +151,17 @@ public class SplashActivity extends Activity {
                 //위치 값을 가져올 수 있음
 
                 if(checkInternetConnectivity()){
-                    initSharedPreference();
-                    Intent intent = new Intent(this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+                        initSharedPreference();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        initSharedPreference();
+                        Intent intent = new Intent(this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
             }
             else {
@@ -180,10 +188,17 @@ public class SplashActivity extends Activity {
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
                 hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
             if(checkInternetConnectivity()){
-                initSharedPreference();
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    initSharedPreference();
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    initSharedPreference();
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
 
 

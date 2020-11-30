@@ -82,24 +82,27 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(edt_join_name.getText().toString().length() == 0){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
-                    dialog = builder.setMessage("이름은 빈칸일 수 없습니다.")
-                            .setPositiveButton("확인",null).create();
-                    dialog.show();
+                    edt_join_name.setError("이름을 입력하세요.");
                     return;
                 }
                 if(edt_join_id.getText().toString().length() == 0){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
-                    dialog = builder.setMessage("아이디는 빈칸일 수 없습니다.")
-                            .setPositiveButton("확인",null).create();
-                    dialog.show();
+                    edt_join_id.setError("이메일을 입력하세요.");
+                    return;
+                }
+                int tmp;
+                if((tmp = edt_join_id.getText().toString().indexOf("@")) > -1){
+                    //@가 있다면 인덱스넘버가 -1보다 큼..
+                }else{
+                    //@의 인덱스 위치가 0보다 작다면 즉, 입력받은 문자에 @가 없다면
+                    edt_join_id.setError("이메일 형식이 아닙니다.");
+                    return;
+                }
+                if(!((edt_join_id.getText().toString().contains(".com")) | (edt_join_id.getText().toString().contains(".net"))) ){
+                    edt_join_id.setError("이메일 형식이 아닙니다.");
                     return;
                 }
                 if(edt_join_pw.getText().toString().length() < 6){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
-                    dialog = builder.setMessage("비밀번호 6자리 이상 입력해주세요.")
-                            .setPositiveButton("확인",null).create();
-                    dialog.show();
+                    edt_join_pw.setError("6자 이상 입력하세요.");
                     return;
                 }
                 if(!(edt_join_pw.getText().toString().equals(edt_join_pwchk.getText().toString()))){
@@ -110,31 +113,12 @@ public class JoinActivity extends AppCompatActivity {
                     return;
                 }
                 if(edt_join_phonenumber.getText().toString().length() == 0){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
-                    dialog = builder.setMessage("전화번호는 빈칸일 수 없습니다.")
-                            .setPositiveButton("확인",null).create();
-                    dialog.show();
+                    edt_join_phonenumber.setError("전화번호를 입력하세요.");
                     return;
                 }
                 join(edt_join_name.getText().toString(), edt_join_id.getText().toString(), edt_join_pw.getText().toString(), edt_join_phonenumber.getText().toString());
-
-
-                /*
-                if(edt_join_id.getText().toString().length() > 0 && edt_join_pw.getText().toString().length() > 5){
-                    if(edt_join_pw.getText().toString().equals(edt_join_pwchk.getText().toString())){
-                        join(edt_join_id.getText().toString(), edt_join_pw.getText().toString());
-                    }else{
-                        Toast.makeText(JoinActivity.this, "비밀번호가 서로 일치하지 않습니다.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-
-                    //Toast.makeText(JoinActivity.this, "아이디나 비밀번호(6자리이상) 다시 확인해주세요.",
-                    //        Toast.LENGTH_SHORT).show();
-                }*/
             }
         });//btn_join.setOnClickListener()
-
     }//onCreate()
 
     //활동을 초기화할 때 사용자가 현재 로그인되어 있는지 확인
@@ -146,30 +130,7 @@ public class JoinActivity extends AppCompatActivity {
     }//onStart()
 
     //회원가입하는 로직
-    private void join(final String name, final String email, final String password, final String phone){/*
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(JoinActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(),LoginActivity.class));
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            //Toast.makeText(JoinActivity.this, task.getException().toString(),
-                            //        Toast.LENGTH_SHORT).show();
-                            AlertDialog.Builder builder = new AlertDialog.Builder(JoinActivity.this);
-                            dialog = builder.setMessage(task.getException().toString())
-                                    .setPositiveButton("확인",null).create();
-                            dialog.show();
-                            return;
-                        }
-
-                        // ...
-                    }
-                });*/
-
+    private void join(final String name, final String email, final String password, final String phone){
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
