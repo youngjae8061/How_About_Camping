@@ -223,8 +223,8 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
 
                 String markerTitle = getCurrentAddress(currentPosition);
 
-                //현재 위치에 마커 생성하고 이동
-                setCurrentLocation(location, markerTitle);
+                //현재 위치에 마커 생성하고 이동 - 현재 위치만 계속 쳐다보는 메서드
+                //setCurrentLocation(location, markerTitle);
 
                 mCurrentLocatiion = location;
             }
@@ -351,8 +351,8 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
-    //현재 위치 마커 표시
-    public void setCurrentLocation(Location location, String markerTitle) {
+    //현재 위치 마커 표시 - 현재위치만 계속 쳐다보는 메서드
+    /*public void setCurrentLocation(Location location, String markerTitle) {
 
 
         if (currentMarker != null) currentMarker.remove();
@@ -370,8 +370,7 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
         mMap.moveCamera(cameraUpdate);
-
-    }
+    }*/
 
 
     public void setDefaultLocation() {
