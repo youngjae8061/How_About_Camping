@@ -99,6 +99,7 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
     private LocationRequest locationRequest;
     private Location location;
 
+    private double get_latitude, get_longitude;
     private View mLayout;
 
     @Override
@@ -212,6 +213,18 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
 
+            get_latitude = locationResult.getLastLocation().getLatitude();
+            get_longitude = locationResult.getLastLocation().getLongitude();
+            mFusedLocationClient.removeLocationUpdates(locationCallback);
+            //gp = new GeoPoint(get_latitude, get_longitude);
+            //Toast.makeText(MainActivity.this, String.valueOf(gp), Toast.LENGTH_SHORT).show();
+
+            //currentPosition = new LatLng(get_latitude, get_longitude);
+
+            LatLng latLng = new LatLng(get_latitude, get_longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+
             List<Location> locationList = locationResult.getLocations();
 
             if (locationList.size() > 0) {
@@ -221,9 +234,8 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                         = new LatLng(location.getLatitude(), location.getLongitude());
 
 
-                String markerTitle = getCurrentAddress(currentPosition);
-
-                //현재 위치에 마커 생성하고 이동 - 현재 위치만 계속 쳐다보는 메서드
+                //현재 위치에 마커 생성하고 이동 - 현재 위치만 계속 쳐다봐라
+                //String markerTitle = getCurrentAddress(currentPosition);
                 //setCurrentLocation(location, markerTitle);
 
                 mCurrentLocatiion = location;
@@ -352,25 +364,25 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
     }
 
     //현재 위치 마커 표시 - 현재위치만 계속 쳐다보는 메서드
-    /*public void setCurrentLocation(Location location, String markerTitle) {
+    public void setCurrentLocation(Location location, String markerTitle) {
 
 
-        if (currentMarker != null) currentMarker.remove();
+        //if (currentMarker != null) currentMarker.remove();
 
 
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-        MarkerOptions markerOptions = new MarkerOptions();
+        /*MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(currentLatLng);
         markerOptions.title(markerTitle);
-        markerOptions.draggable(true);
+        markerOptions.draggable(true);*/
 
 
-        currentMarker = mMap.addMarker(markerOptions);
+        //currentMarker = mMap.addMarker(markerOptions);
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
         mMap.moveCamera(cameraUpdate);
-    }*/
+    }
 
 
     public void setDefaultLocation() {
