@@ -223,7 +223,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
     @Override
     public void onLocationChanged(Location location) {
         //Toast.makeText(this, ""+location.getLatitude()+","+location.getLongitude(), Toast.LENGTH_SHORT).show();
-
+        //좌표를 주소로 변환...!
         try {
             Geocoder geocoder = new Geocoder(ReviewActivity.this, Locale.getDefault());
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);

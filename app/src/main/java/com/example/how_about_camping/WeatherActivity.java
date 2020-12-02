@@ -138,6 +138,7 @@ public class WeatherActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -160,6 +161,7 @@ public class WeatherActivity extends AppCompatActivity {
                 PreferenceManager.setBoolean(WeatherActivity.this,"IS_ADDRESS_CHANGED",true);
                 PreferenceManager.setString(getApplicationContext(),"CITY",address);
                 startActivity(new Intent(getApplicationContext(),WeatherActivity.class));
+                finish();
             }
         });
 

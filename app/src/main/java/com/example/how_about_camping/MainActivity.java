@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -35,6 +38,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -60,6 +64,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -145,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ; // 날씨 버튼
         // 다이얼로그 버튼들
 
-      //  img_test = (ImageView) findViewById(R.id.img_test);
+        //  img_test = (ImageView) findViewById(R.id.img_test);
 
         switch_sch = (Switch) findViewById(R.id.switch_sch);
 
@@ -320,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     Log.d(TAG, String.valueOf(document.get("spot_name"))); //!!!!!!!!!!!!!!!!!!
 
                                     String filename = String.valueOf(document.get("id")) + ".png";
-                                    final StorageReference storageRef = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+                                    final StorageReference storageRef = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/" + filename);
 
                                     storageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                         @Override
@@ -336,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     });
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
-                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
+                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(7));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
                                     BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
                                     Bitmap b = bitmapdraw.getBitmap();
                                     Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
@@ -375,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     Log.d(TAG, String.valueOf(document.get("review"))); //!!!!!!!!!!!!!!!!!!
 
                                     String filename = String.valueOf(document.get("id")) + ".png";
-                                    final StorageReference storageRef = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+                                    final StorageReference storageRef = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/" + filename);
 
                                     storageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                         @Override
@@ -391,10 +399,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
-                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(12));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
-                                    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(7));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
+                                    BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.tent);
                                     Bitmap b = bitmapdraw.getBitmap();
                                     Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
+
                                     markerOptions = new MarkerOptions()
                                             .position(latLng)
                                             .title(String.valueOf(document.get("spot_name")))
@@ -474,7 +483,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         imgReview = (ImageView) dialogView.findViewById(R.id.imgReview);
         txtSpotName = (TextView) dialogView.findViewById(R.id.txtSpotName);
         txtReview = (TextView) dialogView.findViewById(R.id.txtReview);
-
+        //marker.
+        //startToast(String.valueOf(marker.getPosition()));
         title = marker.getTitle();
         snippet = marker.getSnippet();
 
@@ -482,38 +492,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         db.collection("review")
                 .whereEqualTo("spot_name", title)
                 .whereEqualTo("review", snippet)
+                //.whereEqualTo("map", )
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                startToast(String.valueOf(document.get("spot_name")));
+                                //startToast(String.valueOf(document.get("map")));
 
                                 String filename = String.valueOf(document.get("id")) + ".png";
-                                final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/"+filename);
+                                final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/" + filename);
                                 //StorageReference pathReference = storageR.child("images/"+filename);
                                 final String imageUrl = String.valueOf(storageR);
 
                                 storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Uri> task) {
-                                       if (task.isSuccessful()) {
-                                          // Glide 이용하여 이미지뷰에 로딩
-                                          Glide.with(MainActivity.this)
-                                                  .load(task.getResult())
-                                                  .override(1024, 980)
-                                                  .into(imgReview);
-                                          Log.d("url", imageUrl);
+                                        if (task.isSuccessful()) {
+                                            // Glide 이용하여 이미지뷰에 로딩
+                                            Glide.with(MainActivity.this)
+                                                    .load(task.getResult())
+                                                    .override(1024, 980)
+                                                    .into(imgReview);
+                                            Log.d("url", imageUrl);
 
-                                       } else {
-                                          // URL을 가져오지 못하면 토스트 메세지
-                                          Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                       }
+                                        } else {
+                                            // URL을 가져오지 못하면 토스트 메세지
+                                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 });
 
-                                BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
+                                BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.tent);
                                 Bitmap b = bitmapdraw.getBitmap();
                                 Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
 
@@ -642,6 +653,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+    //이걸 통해 시작하자마자 현재위치를 바라봄
     public void setDefaultLocation() {
 
         //기본 위치 서울 37.5665, 126.9780
