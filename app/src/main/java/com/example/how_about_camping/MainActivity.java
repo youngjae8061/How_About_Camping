@@ -559,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             LatLng latLng = new LatLng(get_latitude, get_longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
-            mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(17));
         }
     };
 

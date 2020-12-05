@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -135,12 +136,12 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task .isSuccessful()) {
-                    Toast.makeText(JoinActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
                     userID = mAuth.getCurrentUser().getUid();
                     userEmail = mAuth.getCurrentUser().getEmail();
                     DocumentReference documentReference = fStore.collection("users").document(userID);
 
                     Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("uid", userID);
                     userMap.put("name", name);
                     userMap.put("email", email);
                     userMap.put("pwd", password);
@@ -149,10 +150,17 @@ public class JoinActivity extends AppCompatActivity {
                     documentReference.set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                            Toast.makeText(JoinActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "successed. user Profile is created for" + userID);
                         }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("error", e.getMessage());
+                            Toast.makeText(JoinActivity.this, "오류가 발생했습니다!", Toast.LENGTH_SHORT).show();
+                        }
                     });
-                    startActivity(new Intent(getApplicationContext(),MainActivity.class));
                 } else{
                     Toast.makeText(JoinActivity.this, "회원가입에 실패했습니다." + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
