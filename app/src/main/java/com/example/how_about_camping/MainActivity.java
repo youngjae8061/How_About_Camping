@@ -564,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     };
 
     private void startLocationUpdates() {
-
+        //GPS권한이 있는지 확인
         if (!checkLocationServicesStatus()) {
 
             Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");

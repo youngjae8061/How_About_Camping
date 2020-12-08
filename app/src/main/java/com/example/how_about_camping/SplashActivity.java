@@ -97,12 +97,6 @@ public class SplashActivity extends Activity {
         if(PreferenceManager.getFloat(this, "LATITUDE")==-1.0
                 && PreferenceManager.getFloat(this, "LONGITUDE")==-1.0){
 
-            if(latitude>0 && longitude>0){
-
-            }
-            else {
-                latitude = 37.5172f; longitude = 127.0473f; //서울 강남
-            }
             PreferenceManager.setFloat(this,"LATITUDE",(float)latitude);
             PreferenceManager.setFloat(this,"LONGITUDE",(float)longitude);
 
