@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_home"
+        android:enabled="true"
+        android:title="내 정보"
+        android:icon="@drawable/ic_baseline_person_24"/>
+    <item android:id="@+id/menu_reviewlist"
+        android:enabled="true"
+        android:title="나의 후기"
+        android:icon="@drawable/ic_baseline_list_alt_24"/>
+</menu>

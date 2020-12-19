@@ -7,16 +7,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-
-    </RelativeLayout>
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -74,20 +64,6 @@
 
             </LinearLayout>
 
-            <!--            <SearchView
-                            android:id="@+id/search_view"
-                            android:layout_width="250dp"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/linear"
-                            android:background="#FFFFFF"/>
-                        <TextView
-                            android:id="@+id/text_search"
-                            android:layout_width="250dp"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/search_view"
-                            android:background="#FFFFFF"
-                            tools:text="수원역\n수원\n수원핫플"/>-->
-
             <ImageButton
                 android:id="@+id/imgbtn_logout"
                 android:layout_width="30dp"
@@ -118,32 +94,42 @@
                 android:orientation="horizontal">
 
                 <TableRow
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="10dp">
 
                     <Button
                         android:id="@+id/btn_maps"
-                        android:layout_width="142dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:background="@drawable/style_button"
                         android:text="주변 약국 지도" />
 
                     <Button
                         android:id="@+id/btn_weather"
-                        android:layout_width="142dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
                         android:background="@drawable/style_button"
                         android:text="날씨 확인" />
+
+                    <Button
+                        android:id="@+id/btn_mypage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/style_button"
+                        android:text="마이페이지" />
 
                 </TableRow>
 
             </LinearLayout>
 
         </RelativeLayout>
-
 
     </FrameLayout>
 

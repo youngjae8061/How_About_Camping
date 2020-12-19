@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -43,12 +44,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.location.Address;
 import android.location.Geocoder;
@@ -147,17 +151,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.btn_sch).setOnClickListener(onClickListener);
         findViewById(R.id.btn_review).setOnClickListener(onClickListener);//리뷰버튼
         findViewById(R.id.imgbtn_logout).setOnClickListener(onClickListener);
-        findViewById(R.id.btn_maps).setOnClickListener(onClickListener);
-        ; // 약국 지도 버튼
-        findViewById(R.id.btn_weather).setOnClickListener(onClickListener);
-        ; // 날씨 버튼
-        // 다이얼로그 버튼들
-
-        //  img_test = (ImageView) findViewById(R.id.img_test);
-
+        findViewById(R.id.btn_maps).setOnClickListener(onClickListener); // 약국 지도 버튼
+        findViewById(R.id.btn_weather).setOnClickListener(onClickListener); // 날씨 버튼
+        findViewById(R.id.btn_mypage).setOnClickListener(onClickListener); // 마이페이지 버튼
         switch_sch = (Switch) findViewById(R.id.switch_sch);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+       // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -182,28 +181,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         previous_marker = new ArrayList<Marker>();
         mLayout = findViewById(R.id.layout_maps);
 
-
-        /*//=======================테스트중
-        SearchView search_view = (SearchView)findViewById(R.id.search_view);
-        final TextView text_search = (TextView)findViewById(R.id.text_search);
-        text_search.setText(getResult());
-
-        search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //검색(돋보기 버튼을 눌렀을때)
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                //검색창에 글자를 칠때마다 뜨게할때
-                text_search.setText(search(newText));
-                return true;
-            }
-        });
-        //=======================테스트중 */
-
         CheckState();
         showData();//후기등록한거 제목 전체 띄우기
 
@@ -219,33 +196,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
     }//onCreate()
-
-    //입력받은 문자를 필터링해주는 기능
-    private String search(String query) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < items.size(); i++) {
-            String item = items.get(i);
-            sb.append(item);
-            if (i != items.size() - 1) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
-    }
-
-    //결과물 출력 메서드
-    private String getResult() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < items.size(); i++) {
-            //items에서 하나씩 꺼네서 sb에 하나씩 넣어준다.
-            String item = items.get(i);
-            sb.append(item);
-            if (i != items.size() - 1) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
-    }
 
     private void showData() {
         db.collection("review")
@@ -291,6 +241,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     break;
                 case R.id.btn_weather:
                     startWeatherActivity();
+                    break;
+                case R.id.btn_mypage:
+                    Intent intent = new Intent(MainActivity.this, MyPageActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
                     break;
             }
         }

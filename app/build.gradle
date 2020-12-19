@@ -21,6 +21,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 dependencies {
@@ -61,4 +66,6 @@ dependencies {
     implementation 'com.loopj.android:android-async-http:1.4.9'
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'com.android.support:recyclerview-v7:30.0.0'
+    //하단 네비게이션 바
+    implementation 'com.android.support:design:30.0.0'
 }
