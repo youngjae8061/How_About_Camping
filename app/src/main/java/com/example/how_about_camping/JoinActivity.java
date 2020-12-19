@@ -49,7 +49,7 @@ import java.util.List;
 
 public class JoinActivity extends AppCompatActivity {
 
-    EditText edt_join_name, edt_join_id, edt_join_pw, edt_join_pwchk, edt_join_phonenumber;
+    EditText edt_join_name, edt_join_nickname, edt_join_id, edt_join_pw, edt_join_pwchk, edt_join_phonenumber;
     Button btn_join;
     private FirebaseAuth mAuth;
     FirebaseFirestore fStore;
@@ -70,6 +70,7 @@ public class JoinActivity extends AppCompatActivity {
         setContentView(R.layout.activity_join);
 
         edt_join_name = (EditText)findViewById(R.id.edt_join_name);
+        edt_join_nickname = (EditText)findViewById(R.id.edt_join_nickname);
         edt_join_id = (EditText)findViewById(R.id.edt_join_id);
         edt_join_pw = (EditText)findViewById(R.id.edt_join_pw);
         edt_join_pwchk = (EditText)findViewById(R.id.edt_join_pwchk);
@@ -84,6 +85,10 @@ public class JoinActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(edt_join_name.getText().toString().length() == 0){
                     edt_join_name.setError("이름을 입력하세요.");
+                    return;
+                }
+                if(edt_join_nickname.getText().toString().length() == 0){
+                    edt_join_nickname.setError("닉네임을 입력하세요.");
                     return;
                 }
                 if(edt_join_id.getText().toString().length() == 0){
@@ -117,7 +122,7 @@ public class JoinActivity extends AppCompatActivity {
                     edt_join_phonenumber.setError("전화번호를 입력하세요.");
                     return;
                 }
-                join(edt_join_name.getText().toString(), edt_join_id.getText().toString(), edt_join_pw.getText().toString(), edt_join_phonenumber.getText().toString());
+                join(edt_join_name.getText().toString(), edt_join_nickname.getText().toString(), edt_join_id.getText().toString(), edt_join_pw.getText().toString(), edt_join_phonenumber.getText().toString());
             }
         });//btn_join.setOnClickListener()
     }//onCreate()
@@ -131,7 +136,7 @@ public class JoinActivity extends AppCompatActivity {
     }//onStart()
 
     //회원가입하는 로직
-    private void join(final String name, final String email, final String password, final String phone){
+    private void join(final String name, final String nickname, final String email, final String password, final String phone){
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -143,9 +148,11 @@ public class JoinActivity extends AppCompatActivity {
                     Map<String, Object> userMap = new HashMap<>();
                     userMap.put("uid", userID);
                     userMap.put("name", name);
+                    userMap.put("nickName", nickname);
                     userMap.put("email", email);
                     userMap.put("pwd", password);
                     userMap.put("phone", phone);
+                    userMap.put("joinRoot", "일반회원가입");
 
                     documentReference.set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override

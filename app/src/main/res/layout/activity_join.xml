@@ -12,7 +12,7 @@
         android:layout_height="100dp"
         android:src="@drawable/campingpic2"
         android:layout_gravity="center"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="110dp"
         android:layout_marginBottom="40dp"/>
 
     <EditText
@@ -28,6 +28,20 @@
         android:textStyle="bold"
         android:hint="   이      름"
         android:background="@drawable/style_login_id"/>
+
+    <EditText
+        android:id="@+id/edt_join_nickname"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:drawableStart="@drawable/ic_baseline_person_24"
+        android:drawableLeft="@drawable/ic_baseline_person_24"
+        android:padding="10dp"
+        android:ems="10"
+        android:textStyle="bold"
+        android:hint="   닉  네  임"
+        android:background="#E6CDA9"/>
 
     <EditText
         android:id="@+id/edt_join_id"
