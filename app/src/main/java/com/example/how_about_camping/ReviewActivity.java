@@ -73,6 +73,11 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
 
     LocationManager locationManager;
 
+    private long now;                           // 현재시간 가져오기
+    private Date date;                          // Date 생성
+    private SimpleDateFormat time;              // 가져올 형식 정하기
+    private String getTime;                     // 시간을 문자형식으로 저장하기위한 객체
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -257,6 +262,11 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
         //빈칸 여부 체크
         textViewNULLCheck();
 
+        now = System.currentTimeMillis(); // 현재시간 가져오기
+        date = new Date(now);
+        time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   // 시간 형식 - 년 월 일 시 분 초
+        getTime = time.format(date);
+
         if(check_date == true & check_file==true) {
             ivPreview.setEnabled(true);
             //정보 해쉬맵
@@ -266,6 +276,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
             infoMap.put("map", geoPoint);
             infoMap.put("id", id);
             infoMap.put("url", url);
+            infoMap.put("uploadTime", getTime);
 
             //파이어스토어에 등록
             fStore.collection("review").document(id)

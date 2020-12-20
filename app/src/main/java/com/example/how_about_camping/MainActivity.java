@@ -97,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     List<Marker> previous_marker = null;
     //테스트중==============================================================================================
     List<String> items = new ArrayList<>();
-    SearchView search_view;
-    TextView text_search;
 
     private static final String TAG = "drugstoremap";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -136,12 +134,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
-    Button button3, button4;
     View dialogView;
     ImageView imgReview;
-    TextView txtSpotName, txtReview;
+    TextView txtSpotName, txtReview, txtTime;
 
-    String title, snippet;
+    String title, snippet, time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -438,24 +435,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         imgReview = (ImageView) dialogView.findViewById(R.id.imgReview);
         txtSpotName = (TextView) dialogView.findViewById(R.id.txtSpotName);
         txtReview = (TextView) dialogView.findViewById(R.id.txtReview);
+        txtTime = (TextView) dialogView.findViewById(R.id.txtTime);
         //marker.
         //startToast(String.valueOf(marker.getPosition()));
         title = marker.getTitle();
         snippet = marker.getSnippet();
-
         // 리뷰 검색한 마커 정보 가져오기
         db.collection("review")
                 .whereEqualTo("spot_name", title)
                 .whereEqualTo("review", snippet)
-                //.whereEqualTo("map", )
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                //startToast(String.valueOf(document.get("map")));
-
+                                time = String.valueOf(document.get("uploadTime"));
                                 String filename = String.valueOf(document.get("id")) + ".png";
                                 final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/" + filename);
                                 //StorageReference pathReference = storageR.child("images/"+filename);
@@ -472,6 +467,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                     .into(imgReview);
                                             Log.d("url", imageUrl);
 
+                                            txtTime.setText(time);
                                         } else {
                                             // URL을 가져오지 못하면 토스트 메세지
                                             Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -507,10 +503,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             get_latitude = locationResult.getLastLocation().getLatitude();
             get_longitude = locationResult.getLastLocation().getLongitude();
             mFusedLocationClient.removeLocationUpdates(locationCallback);
-            //gp = new GeoPoint(get_latitude, get_longitude);
-            //Toast.makeText(MainActivity.this, String.valueOf(gp), Toast.LENGTH_SHORT).show();
-
-            //currentPosition = new LatLng(get_latitude, get_longitude);
 
             LatLng latLng = new LatLng(get_latitude, get_longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
