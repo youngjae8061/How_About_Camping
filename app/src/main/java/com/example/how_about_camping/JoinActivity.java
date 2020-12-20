@@ -23,6 +23,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +57,10 @@ public class JoinActivity extends AppCompatActivity {
     FirebaseFirestore fStore;
     private static final String TAG = "JoinActivity";
 
+    private long now;                           // 현재시간 가져오기
+    private Date date;                          // Date 생성
+    private SimpleDateFormat time;              // 가져올 형식 정하기
+    private String getTime;                     // 시간을 문자형식으로 저장하기위한 객체
     AlertDialog dialog; // 알림창 띄우는 변수
 
     // 마지막으로 뒤로가기 버튼을 눌렀던 시간 저장
@@ -145,13 +151,19 @@ public class JoinActivity extends AppCompatActivity {
                     userEmail = mAuth.getCurrentUser().getEmail();
                     DocumentReference documentReference = fStore.collection("users").document(userID);
 
+                    now = System.currentTimeMillis(); // 현재시간 가져오기
+                    date = new Date(now);
+                    time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   // 시간 형식 - 년 월 일 시 분 초
+                    getTime = time.format(date);
+
                     Map<String, Object> userMap = new HashMap<>();
                     userMap.put("uid", userID);
                     userMap.put("name", name);
                     userMap.put("nickName", nickname);
-                    userMap.put("email", email);
-                    userMap.put("pwd", password);
                     userMap.put("phone", phone);
+                    userMap.put("email", email);
+                    userMap.put("joinTime", getTime);
+                    //userMap.put("photoUri", String.valueOf(account.getPhotoUrl()));
                     userMap.put("joinRoot", "일반회원가입");
 
                     documentReference.set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {

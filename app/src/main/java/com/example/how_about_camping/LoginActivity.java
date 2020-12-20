@@ -35,7 +35,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +49,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;                 // 파이어 베이스 인증 객체
     private GoogleApiClient googleApiClient;    // 구글 API 클라이언트 객체
-    FirebaseFirestore fStore;                   // 파이어 스토어 객체
+    private FirebaseFirestore fStore;           // 파이어 스토어 객체
+    private long now;                           // 현재시간 가져오기
+    private Date date;                          // Date 생성
+    private SimpleDateFormat time;              // 가져올 형식 정하기
+    private String getTime;                     // 시간을 문자형식으로 저장하기위한 객체
 
     EditText edt_id, edt_pw;
     TextView txt_join;
@@ -164,14 +171,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             //로그인이 성공했으면
+                            now = System.currentTimeMillis(); // 현재시간 가져오기
+                            date = new Date(now);
+                            time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   // 시간 형식 - 년 월 일 시 분 초
+                            getTime = time.format(date);
+
                             String userID = mAuth.getCurrentUser().getUid();
                             DocumentReference documentReference = fStore.collection("users").document(userID);
+
                             Map<String, Object> userMap = new HashMap<>();
                             userMap.put("uid",  userID);
                             userMap.put("name", account.getGivenName());    //getFamilyName() 성, getGivenName() 이름
                             userMap.put("nickName", account.getDisplayName());
                             userMap.put("phone", "");
                             userMap.put("email", account.getEmail());
+                            userMap.put("joinTime", getTime);
                             userMap.put("photoUri", String.valueOf(account.getPhotoUrl()));
                             userMap.put("joinRoot", "구글회원가입");
 
@@ -179,7 +193,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                    Toast.makeText(LoginActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(LoginActivity.this, "가입을 환영합니다!", Toast.LENGTH_SHORT).show();
                                     Log.d(TAG, "successed. user Profile is created for" + userID);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
