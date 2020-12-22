@@ -87,10 +87,11 @@
 
             <LinearLayout
                 android:id="@+id/linear1"
-                android:layout_width="327dp"
+                android:layout_width="wrap_content"
                 android:layout_height="81dp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
+                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <TableRow
@@ -124,6 +125,15 @@
                         android:layout_weight="1"
                         android:background="@drawable/style_button"
                         android:text="마이페이지" />
+
+                    <Button
+                        android:id="@+id/btn_reviewlist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/style_button"
+                        android:text="나의 리뷰" />
 
                 </TableRow>
 

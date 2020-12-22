@@ -15,8 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MyPageActivity"/>
-        <activity android:name=".ReviewActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -36,6 +34,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
+        <activity android:name=".MyPageActivity"/>
+        <activity android:name=".ReviewListActivity" />
+        <activity android:name=".ReviewActivity" />
         <activity
             android:name=".MapsActivity"
             android:parentActivityName=".MainActivity" />

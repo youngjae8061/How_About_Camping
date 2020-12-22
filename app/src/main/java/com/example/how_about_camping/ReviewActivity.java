@@ -261,7 +261,7 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
 
         //빈칸 여부 체크
         textViewNULLCheck();
-
+        String me = fAuth.getCurrentUser().getUid();
         now = System.currentTimeMillis(); // 현재시간 가져오기
         date = new Date(now);
         time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   // 시간 형식 - 년 월 일 시 분 초
@@ -271,10 +271,11 @@ public class ReviewActivity extends AppCompatActivity implements LocationListene
             ivPreview.setEnabled(true);
             //정보 해쉬맵
             Map<String, Object> infoMap = new HashMap<>();
+            infoMap.put("who", me);
             infoMap.put("spot_name", sp_n);
             infoMap.put("review", rv);
             infoMap.put("map", geoPoint);
-            infoMap.put("id", id);
+            infoMap.put("id", id);      // 랜덤번호 생성하여 중복 방지
             infoMap.put("url", url);
             infoMap.put("uploadTime", getTime);
 

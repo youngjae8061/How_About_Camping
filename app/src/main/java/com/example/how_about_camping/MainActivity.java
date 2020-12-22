@@ -82,9 +82,10 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback, Serializable {
 
-    FirebaseAuth fAuth;
-    FirebaseFirestore fStore;
+    private FirebaseAuth fAuth;
+    private FirebaseFirestore fStore;
     private FirebaseFirestore db; //파이어베이스 인스턴스
+    private FirebaseStorage storage;
 
     Switch switch_sch;
     boolean sch = false;
@@ -116,11 +117,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location location;
 
     private View mLayout;
-
-    ImageView img_test;
-    ImageButton imgbtn_logout;
-    private Geocoder geocoder;
-    private Button btn_review, btn_sch;
     private TextView edt_sch;
     // 마지막으로 뒤로가기 버튼을 눌렀던 시간 저장
     private long backKeyPressedTime = 0;
@@ -131,8 +127,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MarkerOptions markerOptions;
     private double get_latitude, get_longitude;
     SupportMapFragment mapFragment;
-
-    FirebaseStorage storage = FirebaseStorage.getInstance();
 
     View dialogView;
     ImageView imgReview;
@@ -151,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.btn_maps).setOnClickListener(onClickListener); // 약국 지도 버튼
         findViewById(R.id.btn_weather).setOnClickListener(onClickListener); // 날씨 버튼
         findViewById(R.id.btn_mypage).setOnClickListener(onClickListener); // 마이페이지 버튼
+        findViewById(R.id.btn_reviewlist).setOnClickListener(onClickListener);
         switch_sch = (Switch) findViewById(R.id.switch_sch);
 
        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -158,10 +153,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //파이어베이스 파이어스토어
+        //파이어베이스 객체들 인스턴스 생성
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -243,6 +239,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Intent intent = new Intent(MainActivity.this, MyPageActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
+                    break;
+                case R.id.btn_reviewlist:
+                    Intent intent2 = new Intent(MainActivity.this, ReviewListActivity.class);
+                    intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent2);
                     break;
             }
         }

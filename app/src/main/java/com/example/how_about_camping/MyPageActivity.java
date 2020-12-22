@@ -1,62 +1,78 @@
 package com.example.how_about_camping;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class MyPageActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;
-    private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
-    private FragMy fragMy;
-    private FragReviewList fragReviewList;
+    private TextView txt_mynickname, txt_myid;
+    private ImageView img_myphoto;
 
+    private FirebaseAuth fAuth;
+    private FirebaseFirestore firestore;
+
+    String nick, email;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_page);
 
-        bottomNavigationView = findViewById(R.id.btm_bar);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
-                    case R.id.menu_home:
-                        setFrag(0);
-                        break;
-                    case R.id.menu_reviewlist:
-                        setFrag(1);
-                        break;
-                }
-                return true;
-            }
-        });
-        fragMy = new FragMy();
-        fragReviewList = new FragReviewList();
-        setFrag(0); //Fragment 첫 화면에 무엇을 띄울건지 지정
+        txt_mynickname = findViewById(R.id.txt_mynickname);
+        txt_myid = findViewById(R.id.txt_myid);
+        img_myphoto = findViewById(R.id.img_myphoto);
+
+        firestore = FirebaseFirestore.getInstance();
+        fAuth = FirebaseAuth.getInstance();
+
+        my_data();
     }
 
-
-    //Fragment 교체가 일어나느 메서드
-    private void setFrag(int n ){
-        fragmentManager = getSupportFragmentManager();              //
-        fragmentTransaction = fragmentManager.beginTransaction();   // 실제로 fragment 교체가 이루어 질때 fragment를 가져와서 getTransaction을 하기위한 함수
-        switch (n){
-            case 0:
-                fragmentTransaction.replace(R.id.frame, fragMy);
-                fragmentTransaction.commit(); //저장
-                break;
-            case 1:
-                fragmentTransaction.replace(R.id.frame, fragReviewList);
-                fragmentTransaction.commit(); //저장
-                break;
-        }
+    private void my_data() {
+        // user 컬랙션 구분 uid별
+        String uid = fAuth.getCurrentUser().getUid();
+        firestore.collection("users")
+                .whereEqualTo("uid", uid)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                String u = String.valueOf(documentSnapshot.get("photoUri"));
+                                nick = String.valueOf(documentSnapshot.get("nickName"));
+                                email = String.valueOf(documentSnapshot.get("email"));
+                                Log.d("url", "메세지 : "+uid);
+                                Log.d("url", "메세지 : "+u);
+                                Glide.with(MyPageActivity.this)
+                                        .load(u)
+                                        .override(1024,980)
+                                       .into(img_myphoto);
+                            }
+                            txt_mynickname.setText(nick);
+                            txt_myid.setText(email);
+                        }
+                    }
+                });
     }
+
 }
