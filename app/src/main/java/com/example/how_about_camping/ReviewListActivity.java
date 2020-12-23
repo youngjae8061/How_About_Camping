@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,8 @@ public class ReviewListActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private MyReviewAdapter myReviewAdapter;
 
+    private ImageButton img_edit, img_delete;
+
     private static final String TAG = "drugstoremap";
     @Override
     public void onCreate( Bundle savedInstanceState) {
@@ -50,6 +53,9 @@ public class ReviewListActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
         fAuth = FirebaseAuth.getInstance();
+
+        img_edit = findViewById(R.id.img_edit);
+        img_delete = findViewById(R.id.img_delete);
 
         recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setHasFixedSize(true);// 리사이클러뷰 기존 성능 강화
