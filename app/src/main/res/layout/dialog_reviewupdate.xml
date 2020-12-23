@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="20dp"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="장소명 : "
+            android:textColor="#000000"/>
+        <EditText
+            android:id="@+id/edt_spot_nameupdate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="장소명"
+            android:textColorHint="#333333"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="후기 : "
+            android:textColor="#000000"/>
+        <EditText
+            android:id="@+id/edt_reviewupdate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="후기"
+            android:textColorHint="#333333"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:foregroundGravity="center"
+        android:gravity="center|top"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_choice"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/style_button"
+            android:text="사진 선택" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/img_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

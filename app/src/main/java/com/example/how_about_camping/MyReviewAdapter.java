@@ -1,12 +1,17 @@
 package com.example.how_about_camping;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.media.Image;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,6 +37,10 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
     ReviewListActivity reviewListActivity;
     private List<MyReview> arrayList;
     Context context;
+    View dialogView;
+    EditText edt_spot_nameupdate, edt_reviewupdate;
+    Button btn_choice;
+    ImageView img_preview;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어베이스 인스턴스
     private FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -56,6 +65,39 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                 String test = arrayList.get(position).getSpot();
                 String test1 = arrayList.get(position).getReview();
                 Toast.makeText(reviewListActivity, test+" "+test1+"를 수정할까요?", Toast.LENGTH_SHORT).show();
+                dialogView = (View) View.inflate(parent.getContext(), R.layout.dialog_reviewupdate, null);
+                AlertDialog.Builder dlg = new AlertDialog.Builder(parent.getContext());
+
+                edt_spot_nameupdate = (EditText) dialogView.findViewById(R.id.edt_spot_nameupdate);
+                edt_reviewupdate = (EditText) dialogView.findViewById(R.id.edt_reviewupdate);
+                btn_choice = (Button) dialogView.findViewById(R.id.btn_choice);
+                img_preview = (ImageView) dialogView.findViewById(R.id.img_preview);
+
+                btn_choice.setOnClickListener(new View.OnClickListener() { //btchoose 추가
+                    @Override
+                    public void onClick(View view) {
+                        //이미지를 선택
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        context = parent.getContext();
+
+                        ((Activity)context).startActivityForResult(Intent.createChooser(intent, "이미지를 선택하세요."), 0);
+
+                    }
+                });
+
+                // firestore에 접근하여 해당 리뷰의
+                // 글을 띄우고 수정할건지 말건지를 ...
+                //db.collection()
+
+
+
+                dlg.setView(dialogView);
+                // setPositiveButton listener에 listener만들기
+                dlg.setPositiveButton("확인", null);
+                dlg.setNegativeButton("취소", null);
+                dlg.show();
             }
 
             @Override
@@ -68,6 +110,8 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
 
         return myReviewViewHolder;
     }
+
+
 
     @Override
     public void onBindViewHolder(@NonNull MyReviewViewHolder holder, int position) {
