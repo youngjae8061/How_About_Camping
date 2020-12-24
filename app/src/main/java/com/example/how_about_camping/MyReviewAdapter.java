@@ -3,9 +3,12 @@ package com.example.how_about_camping;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -29,11 +34,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
-
+    private static final String TAG = "ReveiewActivity";
     ReviewListActivity reviewListActivity;
     private List<MyReview> arrayList;
     Context context;
@@ -41,6 +47,7 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
     EditText edt_spot_nameupdate, edt_reviewupdate;
     Button btn_choice;
     ImageView img_preview;
+    String forDelete;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어베이스 인스턴스
     private FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -102,16 +109,45 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
 
             @Override
             public void onDeleteClick(View view, int position) {
-                String test = arrayList.get(position).getSpot();
-                String test1 = arrayList.get(position).getReview();
-                Toast.makeText(reviewListActivity, test+" "+test1+"를 삭제할까요?", Toast.LENGTH_SHORT).show();
+                dialogView = (View) View.inflate(parent.getContext(), R.layout.dialog_reviewupdate, null);
+                AlertDialog.Builder dlg = new AlertDialog.Builder(parent.getContext());
+                String title = arrayList.get(position).getSpot();
+                String rev = arrayList.get(position).getReview();
+                //Toast.makeText(reviewListActivity, title+" "+rev+"를 삭제할까요?", Toast.LENGTH_SHORT).show();
+                dlg.setMessage("해당 게시글을 삭제할까요?");
+                // setPositiveButton listener에 listener만들기
+                dlg.setNegativeButton("취소", null);
+                dlg.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Toast.makeText(reviewListActivity, "!!! " + title, Toast.LENGTH_SHORT).show();
+                        db.collection("review")
+                                .whereEqualTo("spot_name", title)
+                                .whereEqualTo("review", rev)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            //Toast.makeText(reviewListActivity, "111 " + title, Toast.LENGTH_SHORT).show();
+                                            for (QueryDocumentSnapshot doc : task.getResult()){
+                                                //Toast.makeText(reviewListActivity, "222 " + String.valueOf(doc.get("id")), Toast.LENGTH_SHORT).show();
+                                                db.collection("review").document(String.valueOf(doc.get("id"))).delete();
+                                                //forDelete = String.valueOf(doc.get("id"));
+                                            }
+                                        }
+                                    }
+                                });
+                        //Log.d(TAG, "DocumentSnapshot!" + forDelete);
+                        //Toast.makeText(reviewListActivity, "222 " + forDelete, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                dlg.show();
             }
         });
 
         return myReviewViewHolder;
     }
-
-
 
     @Override
     public void onBindViewHolder(@NonNull MyReviewViewHolder holder, int position) {
@@ -150,10 +186,10 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
         holder.t.setText(arrayList.get(position).getTime());
     }
 
+
+
     @Override
     public int getItemCount() {
         return arrayList.size();
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
