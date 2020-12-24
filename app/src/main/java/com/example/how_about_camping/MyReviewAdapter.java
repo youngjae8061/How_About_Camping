@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -78,6 +79,8 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
             public void onEditlick(View view, int position) {
                 String title = arrayList.get(position).getSpot();
                 String rev = arrayList.get(position).getReview();
+                String time = arrayList.get(position).getTime();
+                String uri = arrayList.get(position).getUri();
                 Toast.makeText(reviewListActivity, title+" "+rev+"를 수정할까요?", Toast.LENGTH_SHORT).show();
                 dialogView = (View) View.inflate(parent.getContext(), R.layout.dialog_reviewupdate, null);
                 AlertDialog.Builder dlg = new AlertDialog.Builder(parent.getContext());
@@ -104,32 +107,44 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                 // firestore에 접근하여 해당 리뷰의
                 // 글을 띄우고 수정할건지 말건지를 ...
                 String u = arrayList.get(position).getUri();
-                String uid = fAuth.getCurrentUser().getUid();
-
-                Glide.with(dialogView)
-                        .load(u)
-                        .override(1024, 980)
-                        .into(img_preview);
-                /*db.collection("review")
-                        .whereEqualTo("spot_name", title)
-                        .whereEqualTo("review", rev)
+                Uri uu = Uri.parse(u);
+                Uri uid = fAuth.getCurrentUser().getPhotoUrl();
+                db.collection("review")
+                        .whereEqualTo("uploadTime", String.valueOf(time))
+                        .whereEqualTo("url", uri)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()){
-                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                                        String u = String.valueOf(documentSnapshot.get("photoUri"));
-                                        Toast.makeText(reviewListActivity, "222 "+u, Toast.LENGTH_SHORT).show();
-                                        Glide.with(dialogView)
-                                                .load(u)
-                                                .override(1024,980)
-                                                .into(img_preview);
-                                        Log.d("url", "메세지 : "+u);
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        String filename = String.valueOf(document.get("id")) + ".png";
+                                        final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/" + filename);
+                                        //StorageReference pathReference = storageR.child("images/"+filename);
+                                        final String imageUrl = String.valueOf(storageR);
+
+                                        storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Uri> task) {
+                                                if (task.isSuccessful()) {
+                                                    // Glide 이용하여 이미지뷰에 로딩
+                                                    Glide.with(dialogView)
+                                                            .load(task.getResult())
+                                                            .override(1024, 980)
+                                                            .into(img_preview);
+                                                    Log.d("url", imageUrl);
+                                                } else {
+                                                    // URL을 가져오지 못하면 토스트 메세지
+                                                }
+                                            }
+                                        });
                                     }
-                                }
+                                } else { }
                             }
-                        });*/
+                        });
+
+                //사진을 바꿀거니?
+
                 edt_spot_nameupdate.setText(title);
                 edt_reviewupdate.setText(rev);
                 dlg.setView(dialogView);
@@ -153,8 +168,6 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
             public void onDeleteClick(View view, int position) {
                 dialogView = (View) View.inflate(parent.getContext(), R.layout.dialog_reviewupdate, null);
                 AlertDialog.Builder dlg = new AlertDialog.Builder(parent.getContext());
-                String title = arrayList.get(position).getSpot();
-                String rev = arrayList.get(position).getReview();
                 String time = arrayList.get(position).getTime();
                 String uri = arrayList.get(position).getUri();
                 //Toast.makeText(reviewListActivity, title+" "+rev+"를 삭제할까요?", Toast.LENGTH_SHORT).show();
@@ -189,7 +202,6 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                                         notifyItemRangeChanged(position, arrayList.size());
                                     }
                                 });
-
                         //Log.d(TAG, "DocumentSnapshot!" + forDelete);
                         //Toast.makeText(reviewListActivity, "222 " + forDelete, Toast.LENGTH_SHORT).show();
                     }
