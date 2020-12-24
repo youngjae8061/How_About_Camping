@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -28,18 +29,24 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
-    private static final String TAG = "ReveiewActivity";
+
     ReviewListActivity reviewListActivity;
     private List<MyReview> arrayList;
     Context context;
@@ -47,8 +54,8 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
     EditText edt_spot_nameupdate, edt_reviewupdate;
     Button btn_choice;
     ImageView img_preview;
-    String forDelete;
 
+    private FirebaseAuth fAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어베이스 인스턴스
     private FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -69,9 +76,9 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
         myReviewViewHolder.setOnClickListener(new MyReviewViewHolder.ClickListener() {
             @Override
             public void onEditlick(View view, int position) {
-                String test = arrayList.get(position).getSpot();
-                String test1 = arrayList.get(position).getReview();
-                Toast.makeText(reviewListActivity, test+" "+test1+"를 수정할까요?", Toast.LENGTH_SHORT).show();
+                String title = arrayList.get(position).getSpot();
+                String rev = arrayList.get(position).getReview();
+                Toast.makeText(reviewListActivity, title+" "+rev+"를 수정할까요?", Toast.LENGTH_SHORT).show();
                 dialogView = (View) View.inflate(parent.getContext(), R.layout.dialog_reviewupdate, null);
                 AlertDialog.Builder dlg = new AlertDialog.Builder(parent.getContext());
 
@@ -96,13 +103,48 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
 
                 // firestore에 접근하여 해당 리뷰의
                 // 글을 띄우고 수정할건지 말건지를 ...
-                //db.collection()
+                String u = arrayList.get(position).getUri();
+                String uid = fAuth.getCurrentUser().getUid();
 
-
-
+                Glide.with(dialogView)
+                        .load(u)
+                        .override(1024, 980)
+                        .into(img_preview);
+                /*db.collection("review")
+                        .whereEqualTo("spot_name", title)
+                        .whereEqualTo("review", rev)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()){
+                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                        String u = String.valueOf(documentSnapshot.get("photoUri"));
+                                        Toast.makeText(reviewListActivity, "222 "+u, Toast.LENGTH_SHORT).show();
+                                        Glide.with(dialogView)
+                                                .load(u)
+                                                .override(1024,980)
+                                                .into(img_preview);
+                                        Log.d("url", "메세지 : "+u);
+                                    }
+                                }
+                            }
+                        });*/
+                edt_spot_nameupdate.setText(title);
+                edt_reviewupdate.setText(rev);
                 dlg.setView(dialogView);
+                dlg.setMessage("해당 게시글을 수정할까요?");
                 // setPositiveButton listener에 listener만들기
-                dlg.setPositiveButton("확인", null);
+                dlg.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        //데이터 수정, 삭제시 바로 화면에 업데이트
+                        arrayList.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, arrayList.size());
+                    }
+                });
                 dlg.setNegativeButton("취소", null);
                 dlg.show();
             }
@@ -113,6 +155,8 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                 AlertDialog.Builder dlg = new AlertDialog.Builder(parent.getContext());
                 String title = arrayList.get(position).getSpot();
                 String rev = arrayList.get(position).getReview();
+                String time = arrayList.get(position).getTime();
+                String uri = arrayList.get(position).getUri();
                 //Toast.makeText(reviewListActivity, title+" "+rev+"를 삭제할까요?", Toast.LENGTH_SHORT).show();
                 dlg.setMessage("해당 게시글을 삭제할까요?");
                 // setPositiveButton listener에 listener만들기
@@ -122,8 +166,8 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //Toast.makeText(reviewListActivity, "!!! " + title, Toast.LENGTH_SHORT).show();
                         db.collection("review")
-                                .whereEqualTo("spot_name", title)
-                                .whereEqualTo("review", rev)
+                                .whereEqualTo("uploadTime", String.valueOf(time))
+                                .whereEqualTo("url", uri)
                                 .get()
                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
@@ -133,11 +177,19 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                                             for (QueryDocumentSnapshot doc : task.getResult()){
                                                 //Toast.makeText(reviewListActivity, "222 " + String.valueOf(doc.get("id")), Toast.LENGTH_SHORT).show();
                                                 db.collection("review").document(String.valueOf(doc.get("id"))).delete();
-                                                //forDelete = String.valueOf(doc.get("id"));
+
+                                                FirebaseStorage storage = FirebaseStorage.getInstance();
+                                                String path = String.valueOf(doc.get("id"))+".png";
+                                                storage.getReference().child("images").child(path).delete();
                                             }
                                         }
+                                        //데이터 수정, 삭제시 바로 화면에 업데이트
+                                        arrayList.remove(position);
+                                        notifyItemRemoved(position);
+                                        notifyItemRangeChanged(position, arrayList.size());
                                     }
                                 });
+
                         //Log.d(TAG, "DocumentSnapshot!" + forDelete);
                         //Toast.makeText(reviewListActivity, "222 " + forDelete, Toast.LENGTH_SHORT).show();
                     }
@@ -154,6 +206,7 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
         db.collection("review")
                 .whereEqualTo("spot_name", arrayList.get(position).getSpot())
                 .whereEqualTo("review", arrayList.get(position).getReview())
+                .whereEqualTo("uploadTime", arrayList.get(position).getTime())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
