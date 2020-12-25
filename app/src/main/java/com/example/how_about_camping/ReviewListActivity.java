@@ -1,14 +1,19 @@
 package com.example.how_about_camping;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +59,9 @@ public class ReviewListActivity extends AppCompatActivity {
     private MyReviewAdapter myReviewAdapter;
 
     private ImageButton img_edit, img_delete;
+    private ImageView img_preview;
+
+    private Uri filePath;
 
     private static final String TAG = "drugstoremap";
     @Override
@@ -65,6 +74,7 @@ public class ReviewListActivity extends AppCompatActivity {
 
         img_edit = findViewById(R.id.img_edit);
         img_delete = findViewById(R.id.img_delete);
+        img_preview = findViewById(R.id.img_preview);
 
         recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setHasFixedSize(true);// 리사이클러뷰 기존 성능 강화

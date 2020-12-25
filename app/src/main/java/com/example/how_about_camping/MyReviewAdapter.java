@@ -55,6 +55,7 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
     EditText edt_spot_nameupdate, edt_reviewupdate;
     Button btn_choice;
     ImageView img_preview;
+    String u, s, r, t;
 
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어베이스 인스턴스
@@ -70,6 +71,7 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
     @Override
     public MyReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // 실제 리스트뷰가 어댑터에 연결되었을때 view를 최초로 만듬
+        // LayoutInflater 레이아웃과 연결시켜줌
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_myreview, parent, false);
 
         MyReviewViewHolder myReviewViewHolder = new MyReviewViewHolder(view);
@@ -101,14 +103,13 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
 
                         ((Activity)context).startActivityForResult(Intent.createChooser(intent, "이미지를 선택하세요."), 0);
 
+
+
                     }
                 });
 
                 // firestore에 접근하여 해당 리뷰의
                 // 글을 띄우고 수정할건지 말건지를 ...
-                String u = arrayList.get(position).getUri();
-                Uri uu = Uri.parse(u);
-                Uri uid = fAuth.getCurrentUser().getPhotoUrl();
                 db.collection("review")
                         .whereEqualTo("uploadTime", String.valueOf(time))
                         .whereEqualTo("url", uri)
@@ -142,9 +143,6 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                                 } else { }
                             }
                         });
-
-                //사진을 바꿀거니?
-
                 edt_spot_nameupdate.setText(title);
                 edt_reviewupdate.setText(rev);
                 dlg.setView(dialogView);
@@ -153,11 +151,48 @@ public class MyReviewAdapter extends RecyclerView.Adapter<MyReviewViewHolder> {
                 dlg.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        //게시글 수정하기
+                        db.collection("review")
+                                .whereEqualTo("uploadTime", String.valueOf(time))
+                                .whereEqualTo("url", uri)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            for (QueryDocumentSnapshot doc : task.getResult()){
+                                                t = String.valueOf(doc.get("uploadTime"));
+                                                //장소명 수정
+                                                if (edt_spot_nameupdate.getText().toString() != null) {
+                                                    db.collection("review")
+                                                            .document(String.valueOf(doc.get("id")))
+                                                            .update("spot_name", edt_spot_nameupdate.getText().toString());
+                                                    s = edt_spot_nameupdate.getText().toString();
+                                                }else{
+                                                    edt_spot_nameupdate.setError("장소명을 입력하세요!");
+                                                    return;
+                                                }
+                                                //후기 수정
+                                                if (edt_reviewupdate.getText().toString() != null) {
+                                                    db.collection("review")
+                                                            .document(String.valueOf(doc.get("id")))
+                                                            .update("review", edt_reviewupdate.getText().toString());
+                                                    r = edt_reviewupdate.getText().toString();
+                                                }else{
+                                                    edt_reviewupdate.setError("후기를 입력하세요!");
+                                                    return;
+                                                }
+                                                //이미지 수정
 
-                        //데이터 수정, 삭제시 바로 화면에 업데이트
-                        arrayList.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, arrayList.size());
+                                            }
+                                        }
+                                        MyReview myRev = new MyReview(u, s, r, t);
+                                        //데이터 수정, 삭제시 바로 화면에 업데이트
+                                        arrayList.set(position,myRev);
+                                        notifyItemChanged(position);
+                                        notifyItemRangeChanged(position, arrayList.size());
+                                    }
+                                });
                     }
                 });
                 dlg.setNegativeButton("취소", null);

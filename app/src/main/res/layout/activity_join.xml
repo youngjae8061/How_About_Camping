@@ -8,12 +8,22 @@
     tools:context=".JoinActivity">
 
     <ImageView
+        android:id="@+id/img_userprofile"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/campingpic2"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_add_photo_alternate_24"
         android:layout_gravity="center"
-        android:layout_marginTop="110dp"
-        android:layout_marginBottom="40dp"/>
+        android:layout_marginTop="110dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginBottom="30dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="프로필 사진 등록"/>
 
     <EditText
         android:id="@+id/edt_join_name"

@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         snippet = marker.getSnippet();
         map = String.valueOf(marker.getPosition());
         String a = marker.getId();
-        Toast.makeText(this, a, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, a, Toast.LENGTH_SHORT).show();
         // 리뷰 검색한 마커 정보 가져오기
         db.collection("review")
                 .whereEqualTo("spot_name", title)
