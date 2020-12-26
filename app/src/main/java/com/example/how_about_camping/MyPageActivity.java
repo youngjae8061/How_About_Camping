@@ -61,8 +61,8 @@ public class MyPageActivity extends AppCompatActivity {
                                 String u = String.valueOf(documentSnapshot.get("photoUri"));
                                 nick = String.valueOf(documentSnapshot.get("nickName"));
                                 email = String.valueOf(documentSnapshot.get("email"));
-                                Log.d("url", "메세지 : "+uid);
-                                Log.d("url", "메세지 : "+u);
+                                Log.d("url", "사용자 고유 번호 메세지 : "+uid);
+                                Log.d("url", "프로필 url 메세지 : "+u);
                                 Glide.with(MyPageActivity.this)
                                         .load(u)
                                         .override(1024,980)

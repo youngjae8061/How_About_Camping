@@ -129,10 +129,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     SupportMapFragment mapFragment;
 
     View dialogView;
-    ImageView imgReview;
-    TextView txtSpotName, txtReview, txtTime;
+    ImageView imgReview, img_user;
+    TextView txtSpotName, txtReview, txtTime, txt_user;
 
-    String title, snippet, time, map;
+    String title, snippet, time, map, nick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     });
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
-                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(7));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
+                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(19));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
                                     BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.tent);
                                     Bitmap b = bitmapdraw.getBitmap();
                                     Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     LatLng latLng = new LatLng(gp.getLatitude(), gp.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));    // 화면이 바라볼 곳은 latlng이다.
-                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(7));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
+                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(19));        // 화면은 15만큼 당겨라?  단계는 1~21까지 있음 숫자가 클수록 자세함
                                     BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.tent);
                                     Bitmap b = bitmapdraw.getBitmap();
                                     Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
@@ -433,10 +433,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         dialogView = (View) View.inflate(MainActivity.this, R.layout.dialog, null);
         AlertDialog.Builder dlg = new AlertDialog.Builder(MainActivity.this);
 
+        img_user = (ImageView) dialogView.findViewById(R.id.img_user);
         imgReview = (ImageView) dialogView.findViewById(R.id.imgReview);
         txtSpotName = (TextView) dialogView.findViewById(R.id.txtSpotName);
         txtReview = (TextView) dialogView.findViewById(R.id.txtReview);
         txtTime = (TextView) dialogView.findViewById(R.id.txtTime);
+        txt_user = (TextView) dialogView.findViewById(R.id.txt_user);
+
         //marker.
         //startToast(String.valueOf(marker.getPosition()));
         title = marker.getTitle();
@@ -456,6 +459,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 time = String.valueOf(document.get("uploadTime"));
                                 String filename = String.valueOf(document.get("id")) + ".png";
+                                String who = String.valueOf(document.get("who"));
                                 final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("images/" + filename);
                                 //StorageReference pathReference = storageR.child("images/"+filename);
                                 final String imageUrl = String.valueOf(storageR);
@@ -469,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                     .load(task.getResult())
                                                     .override(1024, 980)
                                                     .into(imgReview);
-                                            Log.d("url", imageUrl);
+                                            Log.d("url1", "후기사진 메세지 : "+imageUrl);
 
                                             txtTime.setText(time);
                                         } else {
@@ -478,11 +482,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         }
                                     }
                                 });
+                                db.collection("users")
+                                        .whereEqualTo("uid", who)
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()){
+                                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                                        nick = String.valueOf(documentSnapshot.get("nickName"));
+                                                        txt_user.setText(nick);
+                                                        Log.d("url2", "가입루트 메세지 : "+String.valueOf(documentSnapshot.get("joinRoot")));
+                                                        //if (documentSnapshot.get("joinRoot") == "구글회원가입"){
+                                                            //Toast.makeText(MainActivity.this,"들어왔다",Toast.LENGTH_SHORT).show();
+                                                            String u = String.valueOf(documentSnapshot.get("photoUri"));
+                                                            Log.d("url3", "구글 회원 프로필 uri 메세지 : "+u);
+                                                            Glide.with(MainActivity.this)
+                                                                    .load(u)
+                                                                    .override(1024,980)
+                                                                    .into(img_user);
+                                                        //}else {
+                                                        //if (documentSnapshot.get("joinRoot") == "일반회원가입"){
+                                                            //Toast.makeText(MainActivity.this,"들어왔다2",Toast.LENGTH_SHORT).show();
+                                                            String filename = String.valueOf(documentSnapshot.get("uid")) + ".png";
+                                                            final StorageReference storageR = storage.getReferenceFromUrl("gs://mobilesw-a40fa.appspot.com").child("profiles/" + filename);
+                                                            //StorageReference pathReference = storageR.child("images/"+filename);
+                                                            final String imageUrl = String.valueOf(storageR);
 
+                                                            storageR.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Uri> task) {
+                                                                    if (task.isSuccessful()) {
+                                                                        // Glide 이용하여 이미지뷰에 로딩
+                                                                        Glide.with(MainActivity.this)
+                                                                                .load(task.getResult())
+                                                                                .override(1024, 980)
+                                                                                .into(img_user);
+                                                                        Log.d("url4", "일반 회원 프로필 메세지 : "+imageUrl);
+
+                                                                    } /*else {
+                                                                        // URL을 가져오지 못하면 토스트 메세지
+                                                                        Toast.makeText(MainActivity.this, "2 "+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                                    }*/
+                                                                }
+                                                            });
+                                                        //}
+                                                    }
+                                                }
+                                            }
+                                        });
                                 BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.tent);
                                 Bitmap b = bitmapdraw.getBitmap();
                                 Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 70, false);
-
                             }
                         } else {
                             startToast("사진을 못가져왔어요 ㅠ");
